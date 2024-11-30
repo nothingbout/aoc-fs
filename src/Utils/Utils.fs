@@ -24,6 +24,8 @@ module Globals =
     let inline inspect x = printfn $"{x}"; x
     let inline inspectSeq seq = printfn $"Seq {List.ofSeq seq}"; seq
 
+    let inline printn x = printfn $"{x}"
+
 open Globals
 
 [<Struct>]
@@ -47,7 +49,8 @@ module Range =
         else None
 
 module IntRange = 
-    let inline withSize start size = {Start = start; Finish = start + size - makeOne ()}
+    let inline withLength start length = {Start = start; Finish = start + length - makeOne ()}
+    let inline length r = r.Finish - r.Start + 1
     let inline toSeq r = seq { r.Start .. 1 .. r.Finish }
 
 // module TestRange =
@@ -100,3 +103,7 @@ module Array =
                 _iter action arr (i + 1)
                 swap i j arr
         _iter action (Array.copy source) 0
+
+module Map =
+    let inline get key defaultValue = 
+        Map.tryFind key >> Option.defaultValue defaultValue

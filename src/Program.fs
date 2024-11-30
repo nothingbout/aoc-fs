@@ -13,6 +13,13 @@ let main args =
         AOC2018.Day06.getPuzzles ()
         AOC2018.Day07.getPuzzles ()
         AOC2018.Day08.getPuzzles ()
+        AOC2018.Day09.getPuzzles ()
+        AOC2018.Day10.getPuzzles ()
+        AOC2018.Day11.getPuzzles ()
+        AOC2018.Day12.getPuzzles ()
+        AOC2018.Day13.getPuzzles ()
+        AOC2018.Day14.getPuzzles ()
+        AOC2018.Day15.getPuzzles ()
     ]
 
     let results : Puzzle.Results = {Success = 0; Fail = 0}

@@ -1,7 +1,10 @@
 namespace Utils
 
 module Str = 
-    let ofSeq source = source |> Array.ofSeq |> System.String
+    let ofSeq (source : char seq) = source |> Array.ofSeq |> System.String
+    let ofList (source : char list) = source |> Array.ofList |> System.String
+    let ofArray (source : char array) = source |> System.String
+    let toArray (source : string) = source.ToCharArray()
 
     let sub (from : int) (to' : int) (str : string) = str.Substring(from, to')
     let subFrom (from : int) (str : string) = str.Substring(from)

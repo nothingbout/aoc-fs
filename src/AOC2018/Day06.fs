@@ -19,7 +19,7 @@ let solveP1 (inputLines: string list) =
     let bounds = Rect.encapsulating points
     let nearestCounts = System.Collections.Generic.Dictionary<_, _>()
 
-    for p in bounds |> IntRect.pointsSeq do
+    for p in bounds |> IntRect.pointsByRow do
         let nearest = points |> List.minBy (fun p2 -> manhattan p p2)
         let nd = manhattan p nearest
         if points |> Seq.filter (fun p2 -> manhattan p p2 = nd) |> Seq.length = 1 then
@@ -38,7 +38,7 @@ let solveP2 maxTotalDistance (inputLines: string list) =
     let points = inputLines |> List.map parsePoint
     let bounds = Rect.encapsulating points
 
-    bounds |> IntRect.pointsSeq 
+    bounds |> IntRect.pointsByRow 
     |> Seq.filter (fun p -> points |> List.sumBy (manhattan p) <= maxTotalDistance)
     |> Seq.length |> Answer.int
 

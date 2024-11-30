@@ -24,6 +24,7 @@ module Vec2 =
     let inline sign a = make (sign a.X) (sign a.Y)
     let inline abs a = make (abs a.X) (abs a.Y)
     let inline sum a = a.X + a.Y
+    let inline product a = a.X * a.Y
     let inline mul a b = make (a.X * b.X) (a.Y * b.Y)
     let inline div a b = make (a.X / b.X) (a.Y / b.Y)
     let inline dot a b = a.X * b.X + a.Y * b.Y
@@ -53,14 +54,22 @@ module Rect =
             return { XR = xr; YR = yr }
         }
 
-    let encapsulating points = make (points |> List.foldHead Vec2.min) (points |> List.foldHead Vec2.max)
+    let encapsulating points = make (points |> Seq.foldHead Vec2.min) (points |> Seq.foldHead Vec2.max)
 
     let inline expand amount r = make (start r - amount) (finish r + amount)
 
 module IntRect =
-    let inline withSize start size = { XR = IntRange.withSize start.X size.X; YR = IntRange.withSize start.Y size.Y }
+    let inline withSize start size = { XR = IntRange.withLength start.X size.X; YR = IntRange.withLength start.Y size.Y }
+    let inline width r = IntRange.length r.XR
+    let inline height r = IntRange.length r.YR
+    let inline size r = Vec2.make (width r) (height r)
 
-    let pointsSeq r = Seq.allPairs (IntRange.toSeq r.XR) (IntRange.toSeq r.YR) |> Seq.map Vec2.fromTuple
+    let pointsByRow r = 
+        seq {
+            for y = r.YR.Start to r.YR.Finish do
+                for x = r.XR.Start to r.XR.Finish do
+                    yield Vec2.make x y
+        } 
 
 // module TestVec2Range =
 //     let testInt = 
@@ -68,3 +77,70 @@ module IntRect =
 //         let range2 = Range.make (Vec2.make 5 5) (Vec2.make 15 15)
 //         let range3 = Range.intersect range range2
 //         ()
+
+module GridMap = 
+    let printLines lines = 
+        lines |> List.iter (printfn "%s")
+
+    let toLines (bounds : Rect<int>) (emptySpace : string) (map : Map<Vec2<int>, string>) : string list =
+        [for y in IntRange.toSeq bounds.YR ->
+            [for x in IntRange.toSeq bounds.XR ->
+                match map |> Map.tryFind (Vec2.make x y) with
+                | None -> emptySpace
+                | Some value -> value
+            ] |> String.concat ""]
+
+    let toLinesAutoBounds emptyChar map = 
+        toLines (Map.keys map |> Rect.encapsulating) emptyChar map
+
+type Array2<'a>(dims : Vec2<int>, buffer : 'a array) = 
+    member _.Dims = dims
+    member _.Buffer = buffer
+    member this.Item
+        with inline get (pos) = this.Buffer[pos.Y * this.Dims.X + pos.X]
+        and inline set pos value = this.Buffer[pos.Y * this.Dims.X + pos.X] <- value
+
+module Array2 = 
+    let inline dims (source : Array2<'a>) = source.Dims
+    let inline buffer (source : Array2<'a>) = source.Buffer
+    let inline width source = (dims source).X
+    let inline height source = (dims source).Y
+    let inline bufferIdx pos source = pos.Y * (width source) + pos.X
+
+    let make dims buffer = Array2(dims, buffer)
+    let zeroCreate dims = make dims (dims.X * dims.Y |> Array.zeroCreate)
+    let copy source = make (dims source) (buffer source |> Array.copy)
+
+    let map mapping source = make (dims source) (buffer source |> Array.map mapping)
+
+    let iteri action source = 
+        for y = 0 to height source - 1 do
+            for x = 0 to width source - 1 do
+                let pos = Vec2.make x y
+                action pos source[pos]
+
+    let row y source = 
+        let start = Vec2.make 0 y
+        let finish = Vec2.make (width source - 1) y
+        (buffer source)[bufferIdx start source..bufferIdx finish source]
+
+    let rows source = 
+        let height = height source
+        let rows = Array.zeroCreate height
+        for y = 0 to height - 1 do rows[y] <- source |> row y
+        rows
+
+    let fromRows rows = 
+        if Array.isEmpty rows then make (Vec2.makeZero ()) Array.empty
+        else
+        let width = Array.length rows[0]
+        let height = Array.length rows
+        if not (Array.forall (fun row -> Array.length row = width) rows) then failwith $"all rows should have the same length"
+        make (Vec2.make width height) (Array.concat rows)
+
+    let fromStringLines lines = 
+        lines |> Seq.map Str.toArray |> Array.ofSeq |> fromRows
+
+    let toStringLines source = 
+        source |> rows |> Array.map Str.ofArray
+

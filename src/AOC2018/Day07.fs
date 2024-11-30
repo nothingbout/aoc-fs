@@ -56,7 +56,7 @@ let taskDuration timeConst name = timeConst + 1 + int (name - 'A')
 
 let tickTime state = 
     let time = state.Time + 1
-    let completed = state.Started |> List.filter (fun t -> t.StartTime + taskDuration state.TimeConst t.Task.Name <= time)
+    let completed = state.Started |> List.filter (fun t -> time >= t.StartTime + taskDuration state.TimeConst t.Task.Name)
     { state with 
         Workers = state.Workers + List.length completed
         Time = time
@@ -75,8 +75,8 @@ let rec findCompletionTime state =
     if state.Started = [] && state.Remaining = [] then state.Time
     else
     match state.Workers, availableTasks state.CompletedMask state.Remaining with
-    | workers, task :: _ when workers > 0 -> findCompletionTime (startTask task state)
-    | _ -> findCompletionTime (tickTime state)
+    | workers, task :: _ when workers > 0 -> state |> startTask task |> findCompletionTime
+    | _ -> state |> tickTime |> findCompletionTime
 
 let solveP1 (inputLines: string list) = 
     let deps = inputLines |> List.map parseDependency

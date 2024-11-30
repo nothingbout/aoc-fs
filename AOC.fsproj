@@ -18,6 +18,13 @@
     <Compile Include="src\AOC2018\Day06.fs" />
     <Compile Include="src\AOC2018\Day07.fs" />
     <Compile Include="src\AOC2018\Day08.fs" />
+    <Compile Include="src\AOC2018\Day09.fs" />
+    <Compile Include="src\AOC2018\Day10.fs" />
+    <Compile Include="src\AOC2018\Day11.fs" />
+    <Compile Include="src\AOC2018\Day12.fs" />
+    <Compile Include="src\AOC2018\Day13.fs" />
+    <Compile Include="src\AOC2018\Day14.fs" />
+    <Compile Include="src\AOC2018\Day15.fs" />
     <Compile Include="src/Program.fs" />
   </ItemGroup>
 </Project>

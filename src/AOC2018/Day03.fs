@@ -42,7 +42,7 @@ let solveP1 (inputLines: string list) =
             match Rect.intersect claims[i].Rect claims[j].Rect with
             | None -> ()
             | Some rect -> 
-                for p in IntRect.pointsSeq rect do
+                for p in IntRect.pointsByRow rect do
                     points.Add(p) |> ignore
     Answer.int points.Count
 

@@ -17,19 +17,19 @@ let parseLogEntry (line : string) : LogEntry =
         // [1518-08-14 00:52] falls asleep
         // [1518-05-17 00:55] wakes up
         do! Scan.skipString "[1518-"
-        let! month = Scan.int
+        let! month = Scan.positiveInt
         do! Scan.skipString "-"
-        let! day = Scan.int
+        let! day = Scan.positiveInt
         do! Scan.skipString " "
-        let! hour = Scan.int
+        let! hour = Scan.positiveInt
         do! Scan.skipString ":"
-        let! minute = Scan.int
+        let! minute = Scan.positiveInt
         do! Scan.skipString "] "
 
         let! evt = Scan.scan {
             match! Scan.trySkipString "Guard #" with
             | true -> 
-                let! id = Scan.int
+                let! id = Scan.positiveInt
                 do! Scan.skipString " begins shift"
                 return (BeginsShift id)
             | false -> 

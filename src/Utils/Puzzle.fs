@@ -4,10 +4,19 @@ module Answer =
     type T = 
     | None
     | Int of int
+    | Int64 of int64
     | String of string
+    with
+        override this.ToString() = 
+            match this with
+            | None -> $"None"
+            | Int x -> $"{x}"
+            | Int64 x -> $"int64 {x}"
+            | String x -> $"\"{x}\""
 
     let none = None
     let int x = Int x
+    let int64 x = Int64 x
     let string x = String x
 
 type Puzzle = {

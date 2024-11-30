@@ -57,6 +57,10 @@ module Scan =
         seq, 
         ScanError err
 
+    let success value seq = 
+        seq, 
+        ScanSuccess value
+
     let all seq = 
         List.empty,
         seq |> ScanSeq.string |> ScanSuccess
@@ -86,12 +90,32 @@ module Scan =
         | seq, ScanSuccess _ -> seq, ScanSuccess true
         | seq, ScanError _ -> seq, ScanSuccess false
 
-    let chars (pred : char -> bool) (seq : ScanSeq) : ScanSeq * ScanResult<string> = 
+    let charsOrEmpty (pred : char -> bool) (seq : ScanSeq) : ScanSeq * ScanResult<string> = 
         match seq |> List.tryFindIndex (pred >> not) with
-        | Some 0 -> seq |> error "Scan.chars: zero chars matched"
         | None -> seq |> all
         | Some idx -> seq |> take idx
 
-    let digits seq = seq |> chars Char.isDigit
+    let skipSpaces seq = 
+        let (seq, _) = seq |> charsOrEmpty (fun c -> c = ' ')
+        seq |> success ()
 
-    let int seq = seq |> ScanFunc.bind digits (fun str -> int str |> ScanFunc.return')
+    let chars pred seq = 
+        match charsOrEmpty pred seq with
+        | seq, ScanError err -> seq |> error err
+        | seq, ScanSuccess str when String.length str = 0 -> seq |> error "Scan.chars zero chars matched"
+        | seq, ScanSuccess str -> seq |> success str
+
+    let digits seq = 
+        seq |> chars Char.isDigit
+
+    let positiveInt seq =
+        seq |> scan {
+            let! str = digits
+            return (int str)
+        }
+
+    let int seq =
+        seq |> scan {
+            let! str = chars (fun c -> Char.isDigit c || c = '-')
+            return (int str)
+        }
