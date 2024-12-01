@@ -21,6 +21,8 @@ module Globals =
 
     let maybe = MaybeBuilder()
 
+    let toString x = $"{x}"
+
     let inspect x = printfn $"{x}"; x
     let inspectSeq seq = 
         printfn "seq {"
@@ -110,5 +112,27 @@ module Array =
         _iter action (Array.copy source) 0
 
 module Map =
-    let inline get key defaultValue = 
-        Map.tryFind key >> Option.defaultValue defaultValue
+    let inline get key orDefault = 
+        Map.tryFind key >> Option.defaultValue orDefault
+
+    let addSeq seq map =
+        (map, seq) ||> Seq.fold (fun map (k, v) -> map |> Map.add k v)
+
+module ArrayList = 
+    let inline makeRoom capacity (arr, len) =
+        if Array.length arr >= capacity then (arr, len)
+        else
+        let newArr = max 1 (Array.length arr * 2) |> Array.zeroCreate
+        Array.blit arr 0 newArr 0 len
+        (newArr, len)
+
+    let mutAppend value (arr, len) = 
+        let arr, len = (arr, len) |> makeRoom (len + 1)
+        arr[len] <- value
+        (arr, len + 1)
+
+    let mutAppendArr values (arr, len) = 
+        let count = Array.length values
+        let arr, len = (arr, len) |> makeRoom (len + count)
+        Array.blit values 0 arr len count
+        (arr, len + count)

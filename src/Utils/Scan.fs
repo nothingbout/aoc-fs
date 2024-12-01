@@ -48,10 +48,6 @@ module Scan =
         | ScanSuccess value -> Some value
         | ScanError err -> None
 
-    module Char = 
-        let isDigit c = 
-            c >= '0' && c <= '9'
-
     // All functions are ScanSeq -> ScanSeq * ScanResult<'T>
     let error err seq = 
         seq, 

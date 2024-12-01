@@ -4,6 +4,7 @@ open Globals
 [<Struct>]
 type Vec2<'T> = {X : 'T; Y : 'T}
     with 
+        override this.ToString (): string = $"({this.X}, {this.Y})"
         static member inline get_Zero () = { X = makeZero (); Y = makeZero () }
         static member inline ( ~- ) (a) = {X = -a.X; Y = -a.Y}
         static member inline ( + ) (a, b) = {X = a.X + b.X; Y = a.Y + b.Y}
@@ -28,6 +29,13 @@ module Vec2 =
     let inline mul a b = make (a.X * b.X) (a.Y * b.Y)
     let inline div a b = make (a.X / b.X) (a.Y / b.Y)
     let inline dot a b = a.X * b.X + a.Y * b.Y
+
+    let readingOrder a b =
+        if a.Y < b.Y then -1
+        else if a.Y > b.Y then 1
+        else if a.X < b.X then -1
+        else if a.X > b.X then 1
+        else 0
 
     let inline turnCCW a = make -a.Y a.X
     let inline turnCW a = make a.Y -a.X
@@ -82,13 +90,18 @@ module GridMap =
     let printLines lines = 
         lines |> List.iter (printfn "%s")
 
-    let toLines (bounds : Rect<int>) (emptySpace : string) (map : Map<Vec2<int>, string>) : string list =
+    let toLinesWithFunc (func : Vec2<int> -> string) (bounds : Rect<int>) : string list =
         [for y in IntRange.toSeq bounds.YR ->
             [for x in IntRange.toSeq bounds.XR ->
-                match map |> Map.tryFind (Vec2.make x y) with
-                | None -> emptySpace
-                | Some value -> value
+                Vec2.make x y |> func
             ] |> String.concat ""]
+
+    let toLines (bounds : Rect<int>) (emptySpace : string) (map : Map<Vec2<int>, string>) : string list =
+        bounds |> toLinesWithFunc (fun pos -> 
+            match map |> Map.tryFind pos with
+            | None -> emptySpace
+            | Some value -> value
+        )
 
     let toLinesAutoBounds emptyChar map = 
         toLines (Map.keys map |> Rect.encapsulating) emptyChar map
@@ -111,6 +124,8 @@ module Array2 =
     let zeroCreate dims = make dims (dims.X * dims.Y |> Array.zeroCreate)
     let copy source = make (dims source) (buffer source |> Array.copy)
 
+    let contains pos source = pos.X >= 0 && pos.Y >= 0 && pos.X < width source && pos.Y < height source
+    let get pos orDefault source = if source |> contains pos then source[pos] else orDefault
     let map mapping source = make (dims source) (buffer source |> Array.map mapping)
 
     let iteri action source = 

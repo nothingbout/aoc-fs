@@ -3,9 +3,9 @@ open Utils
 open Utils.Globals
 
 let parseEntry line = 
-    match line |> Str.splitByString "   " with 
+    match line |> Str.extractGroupsBy Char.isDigit with 
     | [a; b] -> (int a, int b)
-    | _ -> failwith "unexpected"
+    | list -> failwith $"unexpected {list}"
 
 let solveP1 (inputLines: string list) = 
     let entries = inputLines |> List.map parseEntry

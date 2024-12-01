@@ -5,9 +5,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src/Utils/Utils.fs" />
+    <Compile Include="src/Utils/Queue.fs" />
     <Compile Include="src/Utils/Str.fs" />
     <Compile Include="src/Utils/Scan.fs" />
     <Compile Include="src/Utils/Vec2.fs" />
+    <Compile Include="src/Utils/Search.fs" />
     <Compile Include="src/Utils/Puzzle.fs" />
     <Compile Include="src/Benchmark/*.fs" />
     <Compile Include="src/AOC20XX/*.fs" />
