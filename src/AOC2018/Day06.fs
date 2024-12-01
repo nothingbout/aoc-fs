@@ -42,8 +42,8 @@ let solveP2 maxTotalDistance (inputLines: string list) =
     |> Seq.filter (fun p -> points |> List.sumBy (manhattan p) <= maxTotalDistance)
     |> Seq.length |> Answer.int
 
-let getPuzzles() = 
-    "aoc2018/day06", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "example.txt" (Answer.int 17)
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int 4233)
         Puzzle.create (solveP2 31) "Part 2" "example.txt" (Answer.int 16)

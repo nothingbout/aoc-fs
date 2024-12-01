@@ -51,8 +51,8 @@ let solveP2 (inputLines: string list) =
     let (_, sum) = computeNodeValue input.Data
     Answer.int sum
 
-let getPuzzles() = 
-    "aoc2018/day08", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "example.txt" (Answer.int 138)
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int 36566)
         Puzzle.create solveP2 "Part 2" "example.txt" (Answer.int 66)

@@ -1,4 +1,4 @@
-module AOC2024.DayXX
+module AOC20XX.DayXX
 open Utils
 open Utils.Globals
 
@@ -18,8 +18,8 @@ let solveP1 (inputLines: string list) =
 let solveP2 (inputLines: string list) = 
     Answer.int 0
 
-let getPuzzles() = 
-    "aoc2024/dayXX", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "example.txt" (Answer.int 0)
         // Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int 0)
         // Puzzle.create solveP2 "Part 2" "example.txt" (Answer.int 0)

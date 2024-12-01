@@ -36,8 +36,8 @@ let solveP2 (inputLines: string list) =
         )
     |> Seq.min |> Answer.int
 
-let getPuzzles() = 
-    "aoc2018/day05", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "example.txt" (Answer.int 10)
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int 10708)
         Puzzle.create solveP2 "Part 2" "example.txt" (Answer.int 4)

@@ -89,8 +89,8 @@ let solveP2 timeConst workers (inputLines: string list) =
     let time = findCompletionTime { TimeConst = timeConst; Workers = workers; Time = 0; Started = []; CompletedMask = 0; Remaining = tasks }
     Answer.int time
 
-let getPuzzles() = 
-    "aoc2018/day07", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "example.txt" (Answer.string "CABDFE")
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.string "ADEFKLBVJQWUXCNGORTMYSIHPZ")
         Puzzle.create (solveP2 0 2) "Part 2" "example.txt" (Answer.int 15)

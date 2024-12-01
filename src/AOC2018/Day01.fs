@@ -13,8 +13,8 @@ let solveP1 (inputLines: string list) =
 let solveP2 (inputLines: string list) = 
     inputLines |> List.map int |> fun changes -> findRepeating 0 Set.empty changes changes |> Answer.int
 
-let getPuzzles() = 
-    "aoc2018/day01", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int 445)
         Puzzle.create solveP2 "Part 2" "input.txt" (Answer.int 219)
     ]

@@ -90,8 +90,8 @@ let solveP2 (inputLines: string list) =
     |> Seq.maxBy (fun (_, (_, count)) -> count)
     |> fun (guard, (minute, _)) -> Answer.int (guard * minute)
 
-let getPuzzles() = 
-    "aoc2018/day04", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int 12169)
         Puzzle.create solveP2 "Part 2" "input.txt" (Answer.int 16164)
     ]

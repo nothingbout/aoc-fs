@@ -65,8 +65,8 @@ let solveP2 (inputLines: string list) =
     let squareSize, pos = solve input.Serial 1 300
     Answer.string $"{pos.X},{pos.Y},{squareSize}"
 
-let getPuzzles() = 
-    "aoc2018/day11", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "example.txt" (Answer.string "33,45")
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.string "20,46")
         Puzzle.create solveP2 "Part 2" "example.txt" (Answer.string "90,269,16")

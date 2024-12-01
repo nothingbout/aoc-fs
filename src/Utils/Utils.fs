@@ -21,10 +21,15 @@ module Globals =
 
     let maybe = MaybeBuilder()
 
-    let inline inspect x = printfn $"{x}"; x
-    let inline inspectSeq seq = printfn $"Seq {List.ofSeq seq}"; seq
+    let inspect x = printfn $"{x}"; x
+    let inspectSeq seq = 
+        printfn "seq {"
+        seq |> Seq.iter (fun x -> printfn $"    {x}")
+        printfn "}"
+        seq
 
-    let inline printn x = printfn $"{x}"
+    let printn x = printfn $"{x}"
+    let printSeq seq = inspectSeq seq |> ignore
 
 open Globals
 

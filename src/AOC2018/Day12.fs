@@ -102,8 +102,8 @@ let solveP2 (inputLines: string list) =
         <| int64 n2 <| int64 (sumPlantIndices row2)
     finalSum |> Answer.int64
 
-let getPuzzles() = 
-    "aoc2018/day12", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "example.txt" (Answer.int 325)
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int 1917)
         Puzzle.create solveP2 "Part 2" "input.txt" (Answer.int64 1250000000991L)

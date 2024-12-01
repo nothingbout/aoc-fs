@@ -82,8 +82,8 @@ let solveP2 (inputLines: string list) =
     let input = inputLines |> List.head |> parseInput
     winningScore input.NumPlayers (input.FinalValue * 100) |> Answer.int64
 
-let getPuzzles() = 
-    "aoc2018/day09", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "example1.txt" (Answer.int64 32)
         Puzzle.create solveP1 "Part 1" "example2.txt" (Answer.int64 8317)
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int64 399645)

@@ -49,8 +49,8 @@ let solveP2 textHeight (inputLines: string list) =
     let _, steps = (stars, 0) ||> stepUntilWeHaveText textHeight
     Answer.int steps
 
-let getPuzzles() = 
-    "aoc2018/day10", [
+let getPuzzles () = 
+    [
         Puzzle.create (solveP1 8) "Part 1" "example.txt" (Answer.int 8)
         Puzzle.create (solveP1 10) "Part 1" "input.txt" (Answer.int 10)
         Puzzle.create (solveP2 8) "Part 2" "example.txt" (Answer.int 3)

@@ -4,28 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="src\Utils\Utils.fs" />
-    <Compile Include="src\Utils\Str.fs" />
-    <Compile Include="src\Utils\Scan.fs" />
-    <Compile Include="src\Utils\Vec2.fs" />
+    <Compile Include="src/Utils/Utils.fs" />
+    <Compile Include="src/Utils/Str.fs" />
+    <Compile Include="src/Utils/Scan.fs" />
+    <Compile Include="src/Utils/Vec2.fs" />
     <Compile Include="src/Utils/Puzzle.fs" />
-    <Compile Include="src/Benchmark/Vec2.fs" />
-    <Compile Include="src/AOC2018/Day01.fs" />
-    <Compile Include="src/AOC2018/Day02.fs" />
-    <Compile Include="src\AOC2018\Day03.fs" />
-    <Compile Include="src\AOC2018\Day04.fs" />
-    <Compile Include="src\AOC2018\Day05.fs" />
-    <Compile Include="src\AOC2018\Day06.fs" />
-    <Compile Include="src\AOC2018\Day07.fs" />
-    <Compile Include="src\AOC2018\Day08.fs" />
-    <Compile Include="src\AOC2018\Day09.fs" />
-    <Compile Include="src\AOC2018\Day10.fs" />
-    <Compile Include="src\AOC2018\Day11.fs" />
-    <Compile Include="src\AOC2018\Day12.fs" />
-    <Compile Include="src\AOC2018\Day13.fs" />
-    <Compile Include="src\AOC2018\Day14.fs" />
-    <Compile Include="src\AOC2018\Day15.fs" />
-    <Compile Include="src\AOC2024\Day01.fs" />
+    <Compile Include="src/Benchmark/*.fs" />
+    <Compile Include="src/AOC20XX/*.fs" />
+    <Compile Include="src/AOC2018/*.fs" />
+    <Compile Include="src/AOC2024/*.fs" />
     <Compile Include="src/Program.fs" />
   </ItemGroup>
 </Project>

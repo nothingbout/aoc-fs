@@ -52,8 +52,8 @@ let solveP2 (inputLines: string list) =
         None = (claims |> Seq.tryFind (fun b -> a.ID <> b.ID && Rect.intersect a.Rect b.Rect <> None))
     ) |> fun c -> Answer.int c.ID
 
-let getPuzzles() = 
-    "aoc2018/day03", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int 104126)
         Puzzle.create solveP2 "Part 2" "input.txt" (Answer.int 695)
     ]

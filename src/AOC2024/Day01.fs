@@ -18,8 +18,8 @@ let solveP2 (inputLines: string list) =
     let counts2 = list2 |> List.countBy id |> Map.ofList
     list1 |> List.sumBy (fun a -> a * (counts2 |> Map.get a 0)) |> Answer.int
 
-let getPuzzles() = 
-    "aoc2024/day01", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "example.txt" (Answer.int 11)
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int 3508942)
         Puzzle.create solveP2 "Part 2" "example.txt" (Answer.int 31)

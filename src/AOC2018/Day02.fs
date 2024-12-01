@@ -24,8 +24,8 @@ let solveP2 (inputLines: string list) =
     |> fun (xs, ys) -> commonChars xs ys 
     |> Answer.string
 
-let getPuzzles() = 
-    "aoc2018/day02", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int 5976)
         Puzzle.create solveP2 "Part 2" "input.txt" (Answer.string "xretqmmonskvzupalfiwhcfdb")
     ]

@@ -112,8 +112,8 @@ let solveP2 (inputLines: string list) =
     let onePos = tickUntilOneRemaining pieces carts
     sprintf $"{onePos.X},{onePos.Y}" |> Answer.string
 
-let getPuzzles() = 
-    "aoc2018/day13", [
+let getPuzzles () = 
+    [
         Puzzle.create solveP1 "Part 1" "example1.txt" (Answer.string "7,3")
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.string "45,34")
         Puzzle.create solveP2 "Part 2" "example2.txt" (Answer.string "6,4")
