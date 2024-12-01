@@ -20,6 +20,7 @@ let main args =
         AOC2018.Day13.getPuzzles ()
         AOC2018.Day14.getPuzzles ()
         AOC2018.Day15.getPuzzles ()
+        AOC2024.Day01.getPuzzles ()
     ]
 
     let results : Puzzle.Results = {Success = 0; Fail = 0}
