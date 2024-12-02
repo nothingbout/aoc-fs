@@ -2,26 +2,30 @@ module AOC2024.Day02
 open Utils
 open Utils.Globals
 
-[<Struct>]
-type Entry = { Str : string }
+let parseReport line = 
+    line |> Str.splitByString " " |> List.map int
 
-let parseEntry line = 
-    line |> ScanSeq.ofString |> Scan.scan {
-        let! str = Scan.all
-        return { Str = str }
-    } |> Scan.finish
+let isSafe report = 
+    report |> Seq.pairwise |> Seq.forall (fun (a, b) -> a < b && b - a <= 3) || 
+    report |> Seq.pairwise |> Seq.forall (fun (a, b) -> a > b && a - b <= 3)
+
+let isSafeWithOneException report = 
+    isSafe report ||
+    seq { 0..List.length report - 1 } 
+    |> Seq.exists (fun i -> report |> List.removeAt i |> isSafe)
 
 let solveP1 (inputLines: string list) = 
-    let entries = inputLines |> List.map parseEntry
-    Answer.int 0
+    let reports = inputLines |> List.map parseReport
+    reports |> List.filter isSafe |> List.length |> Answer.int
     
 let solveP2 (inputLines: string list) = 
-    Answer.int 0
+    let reports = inputLines |> List.map parseReport
+    reports |> List.filter isSafeWithOneException |> List.length |> Answer.int
 
 let getPuzzles () = 
     [
-        Puzzle.create solveP1 "Part 1" "example.txt" (Answer.int 0)
-        // Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int 0)
-        // Puzzle.create solveP2 "Part 2" "example.txt" (Answer.int 0)
-        // Puzzle.create solveP2 "Part 2" "input.txt" (Answer.int 0)
+        Puzzle.create solveP1 "Part 1" "example.txt" (Answer.int 2)
+        Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int 242)
+        Puzzle.create solveP2 "Part 2" "example.txt" (Answer.int 4)
+        Puzzle.create solveP2 "Part 2" "input.txt" (Answer.int 311)
     ]
