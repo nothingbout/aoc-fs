@@ -3,7 +3,7 @@ open Utils
 open Utils.Globals
 
 let parsePoint line = 
-    match line |> Str.splitByString ", " |> List.map int with
+    match line |> String.splitByString ", " |> List.map int with
     | [x; y] -> Vec2.make x y
     | _ -> failwith $"not a valid point {line}"
 

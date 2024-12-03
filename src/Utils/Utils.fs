@@ -40,17 +40,25 @@ open Globals
 type Range<'T> = {Start : 'T; Finish : 'T}
 
 module Range = 
-    let make start finish = {Start = start; Finish = finish}
+    let inline make start finish = {Start = start; Finish = finish}
 
-    let start r = r.Start
-    let finish r = r.Finish
+    let inline start r = r.Start
+    let inline finish r = r.Finish
+    let inline subFrom from r = 
+        assert (from >= 0)
+        make (r.Start + from) r.Finish
+    let inline subTo to' r = 
+        assert (r.Start + to' <= r.Finish)
+        make r.Start (r.Start + to')
+    let inline sub from to' r = 
+        r |> subTo to' |> subFrom from
 
     let inline contains r x = r.Start <= x && x <= r.Finish
 
-    let inline union a b = 
+    let union a b = 
         make (min a.Start b.Start) (max a.Finish b.Finish)
         
-    let inline intersect a b = 
+    let intersect a b = 
         let start = max a.Start b.Start
         let finish = min a.Finish b.Finish
         if start <= finish then Some (make start finish)

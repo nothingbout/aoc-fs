@@ -5,8 +5,8 @@ open Utils.Globals
 type Input = { Serial : int }
 
 let parseInput line = 
-    line |> ScanSeq.ofString |> Scan.scan {
-        let! serial = Scan.positiveInt
+    line |> Substring.ofString |> Scan.scan {
+        let! serial = Scan.takePositiveInt
         return { Serial = serial }
     } |> Scan.finish
 

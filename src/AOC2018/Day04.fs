@@ -12,31 +12,31 @@ type Event =
 type LogEntry = { Time : DateTime; Event : Event }
 
 let parseLogEntry (line : string) : LogEntry = 
-    line |> ScanSeq.ofString |> Scan.scan {
+    line |> Substring.ofString |> Scan.scan {
         // [1518-11-10 23:46] Guard #1973 begins shift
         // [1518-08-14 00:52] falls asleep
         // [1518-05-17 00:55] wakes up
         do! Scan.skipString "[1518-"
-        let! month = Scan.positiveInt
+        let! month = Scan.takePositiveInt
         do! Scan.skipString "-"
-        let! day = Scan.positiveInt
+        let! day = Scan.takePositiveInt
         do! Scan.skipString " "
-        let! hour = Scan.positiveInt
+        let! hour = Scan.takePositiveInt
         do! Scan.skipString ":"
-        let! minute = Scan.positiveInt
+        let! minute = Scan.takePositiveInt
         do! Scan.skipString "] "
 
         let! evt = Scan.scan {
-            match! Scan.trySkipString "Guard #" with
-            | true -> 
-                let! id = Scan.positiveInt
+            match! Scan.skipString "Guard #" >> Scan.maybe with
+            | Some () -> 
+                let! id = Scan.takePositiveInt
                 do! Scan.skipString " begins shift"
                 return (BeginsShift id)
-            | false -> 
-            match! Scan.trySkipString "falls asleep" with
-            | true -> 
+            | None -> 
+            match! Scan.skipString "falls asleep" >> Scan.maybe with
+            | Some () -> 
                 return FallsAsleep
-            | false ->
+            | None ->
                 do! Scan.skipString "wakes up"
                 return WakesUp
         }

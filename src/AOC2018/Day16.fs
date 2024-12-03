@@ -41,14 +41,14 @@ module Registers =
         | _ -> failwith $"expected four integers but got {arr}"
 
 let scanInstruction line = 
-    line |> Str.extractInts |> Instruction.ofList
+    line |> String.extractInts |> Instruction.ofList
 
 let rec scanSamples samples inputLines = 
     match inputLines with
-    | l1 :: l2 :: l3 :: l4 :: inputLines when l1 |> Str.startsWith "Before:" -> 
-        let before = l1 |> Str.extractInts |> Registers.ofList
+    | l1 :: l2 :: l3 :: l4 :: inputLines when l1 |> String.startsWith "Before:" -> 
+        let before = l1 |> String.extractInts |> Registers.ofList
         let instr = l2 |> scanInstruction
-        let after = l3 |> Str.extractInts |> Registers.ofList
+        let after = l3 |> String.extractInts |> Registers.ofList
         inputLines |> scanSamples ((before, instr, after) :: samples)
     | _ ->
         (samples |> List.rev, inputLines)
@@ -143,7 +143,7 @@ let solveP1 (inputLines: string list) =
     
 let solveP2 (inputLines: string list) = 
     let samples, inputLines = inputLines |> scanSamples []
-    let testProgram = inputLines |> List.skipWhile Str.isEmpty |> List.map scanInstruction
+    let testProgram = inputLines |> List.skipWhile String.isEmpty |> List.map scanInstruction
 
     let mappings = 
         samples 

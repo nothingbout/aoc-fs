@@ -6,7 +6,7 @@ open Utils.Globals
 type Dependency = { Src : char; Dst : char }
 
 let parseDependency line = 
-    line |> ScanSeq.ofString |> Scan.scan {
+    line |> Substring.ofString |> Scan.scan {
         // Step D must be finished before step X can begin.
         do! Scan.skipString "Step "
         let! src = Scan.take 1
@@ -81,7 +81,7 @@ let rec findCompletionTime state =
 let solveP1 (inputLines: string list) = 
     let deps = inputLines |> List.map parseDependency
     let order = makeTasks deps |> findTaskOrder [] 0
-    order |> Str.ofSeq |> Answer.string
+    order |> String.ofSeq |> Answer.string
     
 let solveP2 timeConst workers (inputLines: string list) = 
     let deps = inputLines |> List.map parseDependency

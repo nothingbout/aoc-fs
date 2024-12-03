@@ -6,20 +6,20 @@ open Utils.Globals
 type Star = { Pos : Vec2<int>; Vel : Vec2<int> }
 
 let parseStar line = 
-    line |> ScanSeq.ofString |> Scan.scan {
+    line |> Substring.ofString |> Scan.scan {
         // position=< 9,  1> velocity=< 0,  2>
         do! Scan.skipString "position=<"
         do! Scan.skipSpaces
-        let! px = Scan.int
+        let! px = Scan.takeInt
         do! Scan.skipString ","
         do! Scan.skipSpaces
-        let! py = Scan.int
+        let! py = Scan.takeInt
         do! Scan.skipString "> velocity=<"
         do! Scan.skipSpaces
-        let! vx = Scan.int
+        let! vx = Scan.takeInt
         do! Scan.skipString ","
         do! Scan.skipSpaces
-        let! vy = Scan.int
+        let! vy = Scan.takeInt
         do! Scan.skipString ">"
         return { Pos = Vec2.make px py; Vel = Vec2.make vx vy }
     } |> Scan.finish

@@ -3,7 +3,7 @@ open Utils
 open Utils.Globals
 
 let parseEntry line = 
-    match line |> Str.extractGroupsBy Char.isDigit with 
+    match line |> String.extractGroupsBy Char.isDigit with 
     | [a; b] -> (int a, int b)
     | list -> failwith $"unexpected {list}"
 

@@ -6,9 +6,9 @@ open Utils.Globals
 type Entry = { Str : string }
 
 let parseEntry line = 
-    line |> ScanSeq.ofString |> Scan.scan {
-        let! str = Scan.all
-        return { Str = str }
+    line |> Substring.ofString |> Scan.scan {
+        let! str = Scan.takeAll
+        return { Str = str |> toString }
     } |> Scan.finish
 
 let solveP1 (inputLines: string list) = 

@@ -6,17 +6,17 @@ type Claim = { ID : int; Rect : Rect<int> }
 
 let parseClaim (line : string) : Claim = 
     // #1264 @ 30,187: 11x20
-    line |> ScanSeq.ofString |> Scan.scan {
+    line |> Substring.ofString |> Scan.scan {
         do! Scan.skipString "#"
-        let! id = Scan.int
+        let! id = Scan.takeInt
         do! Scan.skipString " @ "
-        let! x = Scan.int
+        let! x = Scan.takeInt
         do! Scan.skipString ","
-        let! y = Scan.int
+        let! y = Scan.takeInt
         do! Scan.skipString ": "
-        let! w = Scan.int
+        let! w = Scan.takeInt
         do! Scan.skipString "x"
-        let! h = Scan.int
+        let! h = Scan.takeInt
         let rect = IntRect.withSize (Vec2.make x y) (Vec2.make w h)
         return {ID = id; Rect = rect}
     } |> Scan.finish

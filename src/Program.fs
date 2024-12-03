@@ -26,8 +26,8 @@ let rootModulesInNamespace (ns : string) =
     System.Reflection.Assembly.GetExecutingAssembly().GetTypes()
     |> Seq.filter (fun t -> t.IsPublic)
     |> Seq.filter (fun t -> 
-        match t.FullName |> Str.tryTrimPrefix (ns + ".") with
-        | Some name -> name |> Str.tryFindIndexOfString "." = None
+        match t.FullName |> String.tryTrimPrefix (ns + ".") with
+        | Some name -> name |> String.tryFindIndexOfString "." = None
         | None -> false
     )
 
@@ -49,21 +49,21 @@ let getPuzzlesByPathInNamespace (ns : string) : (string * Puzzle list) list =
         match t |> tryFindFunctionInModule "getPuzzles" with
         | Some m -> 
             let puzzles = callFunctionInModule m t 
-            let path = t.FullName |> Str.toLower |> Str.replaceOccurencesOfString "." "/"
+            let path = t.FullName |> String.toLower |> String.replaceOccurencesOfString "." "/"
             (path, puzzles) |> Seq.singleton
         | None -> Seq.empty
     ) |> List.ofSeq
 
 [<EntryPoint>]
 let main args =
-    let runPath = if args.Length > 0 then args[0] |> Str.toLower else ""
+    let runPath = if args.Length > 0 then args[0] |> String.toLower else ""
 
     let puzzlesByPath = 
         seq {
             getPuzzlesByPathInNamespace "Benchmark"
             getPuzzlesByPathInNamespace "AOC2018"
             getPuzzlesByPathInNamespace "AOC2024"
-        } |> List.concat
+        } |> List.concat |> List.sortBy (fun (path, _) -> path)
 
     let results : Puzzle.Results = {Success = 0; Fail = 0}
     let results = 

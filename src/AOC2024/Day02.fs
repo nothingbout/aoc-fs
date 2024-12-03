@@ -3,7 +3,7 @@ open Utils
 open Utils.Globals
 
 let parseReport line = 
-    line |> Str.splitByString " " |> List.map int
+    line |> String.splitByString " " |> List.map int
 
 let isSafe report = 
     report |> Seq.pairwise |> Seq.forall (fun (a, b) -> a < b && b - a <= 3) || 

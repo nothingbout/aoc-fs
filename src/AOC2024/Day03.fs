@@ -7,40 +7,34 @@ type Instruction = Mul of int * int | Do | Dont
 let scanMul = 
     Scan.scan {
         do! Scan.skipString "mul("
-        let! x = Scan.positiveInt
+        let! x = Scan.takePositiveInt
         do! Scan.skipString ","
-        let! y = Scan.positiveInt
+        let! y = Scan.takePositiveInt
         do! Scan.skipString ")"
         if x < 1000 && y < 1000 then return Mul (x, y)
-        else return! Scan.error $"more than three digits"
+        else return! Scan.error "more than three digits"
     }
 
-let scanInstructionOrAdvance = 
+let scanInstruction = 
     Scan.scan {
-        match! scanMul >> Scan.option with 
-        | Some mul -> return Some mul
+        match! scanMul >> Scan.maybe with 
+        | Some mul -> return mul
         | None ->
-        match! Scan.trySkipString "do()" with
-        | true -> return Some Do
-        | false ->
-        match! Scan.trySkipString "don't()" with
-        | true -> return Some Dont
-        | false -> 
-        do! Scan.skip 1
-        return None
+        match! Scan.skipString "do()" >> Scan.maybe with
+        | Some () -> return Do
+        | None ->
+        match! Scan.skipString "don't()" >> Scan.maybe with
+        | Some () -> return Dont
+        | None -> return! Scan.error "not an instruction"
     }
 
-let rec scanInstructions (instructions : Instruction list) (seq : ScanSeq) : Instruction list = 
-    match seq |> scanInstructionOrAdvance with
-    | _, ScanError _ -> 
-        List.rev instructions
-    | seq, ScanSuccess None -> 
-        seq |> scanInstructions instructions
-    | seq, ScanSuccess (Some instruction) -> 
-        seq |> scanInstructions (instruction :: instructions)
+let rec scanInstructions (instructions : Instruction list) (substr : Substring) : Instruction list = 
+    match substr |> Scan.next scanInstruction with
+    | _, ScanError _ -> List.rev instructions
+    | substr, ScanSuccess instruction -> substr |> scanInstructions (instruction :: instructions)
 
 let solveP1 (inputLines: string list) = 
-    let instructions = inputLines |> String.concat "" |> ScanSeq.ofString |> scanInstructions []
+    let instructions = inputLines |> String.concat "" |> Substring.ofString |> scanInstructions []
     instructions 
     |> List.map (fun instruction ->
         match instruction with
@@ -50,7 +44,7 @@ let solveP1 (inputLines: string list) =
     |> List.sum |> Answer.int
 
 let solveP2 (inputLines: string list) = 
-    let instructions = inputLines |> String.concat "" |> ScanSeq.ofString |> scanInstructions []
+    let instructions = inputLines |> String.concat "" |> Substring.ofString |> scanInstructions []
     ((0, true), instructions) 
     ||> List.fold (fun (sum, enabled) instruction ->
         match instruction with

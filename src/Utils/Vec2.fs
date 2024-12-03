@@ -154,8 +154,8 @@ module Array2 =
         make (Vec2.make width height) (Array.concat rows)
 
     let fromStringLines lines = 
-        lines |> Seq.map Str.toArray |> Array.ofSeq |> fromRows
+        lines |> Seq.map String.toArray |> Array.ofSeq |> fromRows
 
     let toStringLines source = 
-        source |> rows |> Array.map Str.ofArray
+        source |> rows |> Array.map String.ofArray
 

@@ -5,7 +5,7 @@ open Utils.Globals
 type Input = { Data : int list }
 
 let parseInput line = 
-    line |> Str.splitByString " " |> List.map int |> fun ints -> {Data = ints}
+    line |> String.splitByString " " |> List.map int |> fun ints -> {Data = ints}
 
 let rec computeNodeSum data =
     match data with 

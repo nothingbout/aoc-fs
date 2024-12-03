@@ -1,37 +1,33 @@
 namespace Utils
+open Utils.Globals
 
 type ScanResult<'T> =
   | ScanSuccess of 'T
   | ScanError of string
 
-type ScanSeq = list<char>
-module ScanSeq = 
-    let ofString (str : string) : ScanSeq = str |> List.ofSeq
-    let string seq = seq |> Array.ofList |> System.String
-
-type ScanFunc<'T> = ScanSeq -> ScanSeq * ScanResult<'T>
+type ScanFunc<'T> = Substring -> Substring * ScanResult<'T>
 
 module ScanFunc = 
     let return' value : ScanFunc<'T> = 
-        fun scanSeq -> scanSeq, (ScanSuccess value)
+        fun substr -> substr, (ScanSuccess value)
 
     let returnFrom value : ScanFunc<'T> = 
         value
 
     let bind (curFunc : ScanFunc<'T>) (next : 'T -> ScanFunc<'U>) : ScanFunc<'U> = 
-        fun curSeq ->
-            let nextSeq, result = curFunc curSeq
+        fun curSubstr ->
+            let nextSubstr, result = curFunc curSubstr
             match result with
             | ScanSuccess value -> 
                 let nextFunc = next value
-                nextFunc nextSeq
+                nextFunc nextSubstr
             | ScanError err -> 
-                nextSeq, ScanError err
+                nextSubstr, ScanError err
 
     // let yield' (next : unit -> ScanFunc<'T>) : ScanFunc<'T> = 
-    //     fun nextSeq ->
+    //     fun nextSubstr ->
     //         let nextFunc = next ()
-    //         nextFunc nextSeq
+    //         nextFunc nextSubstr
 
 type ScanFuncBuilder() = 
     member _.Return(value) = ScanFunc.return' value
@@ -42,94 +38,82 @@ type ScanFuncBuilder() =
 module Scan = 
     let scan = ScanFuncBuilder()
 
-    let finish (_seq, result) : 'T =
+    let finish (_substr, result) : 'T =
         match result with
         | ScanSuccess value -> value
         | ScanError err -> failwith err
 
-    let tryFinish (_seq, result) : 'T option =
+    let maybe (substr, result) =
         match result with
-        | ScanSuccess value -> Some value
-        | ScanError err -> None
-
-    // All functions are ScanSeq -> ScanSeq * ScanResult<'T>
-    let error err seq = 
-        seq, 
+        | ScanSuccess value -> substr, ScanSuccess (Some value)
+        | ScanError _ -> substr, ScanSuccess None
+    
+    // All functions below are Substring -> Substring * ScanResult<'T>
+    let inline error err substr = 
+        substr, 
         ScanError err
 
-    let success value seq = 
-        seq, 
+    let inline success value substr = 
+        substr, 
         ScanSuccess value
 
-    let option (seq, result) =
-        match result with
-        | ScanSuccess value -> seq, ScanSuccess (Some value)
-        | ScanError _ -> seq, ScanSuccess None
+    let takeAll substr = 
+        Substring.ofString "" |> success (substr |> Substring.toString)
 
-    let all seq = 
-        List.empty,
-        seq |> ScanSeq.string |> ScanSuccess
+    let skip n substr =
+        if n <= Substring.length substr 
+        then substr |> Substring.subFrom n |> success ()
+        else substr |> error "Scan.skip input substring not long enough"
 
-    let rec skip n seq =
-        match n, seq with
-        | 0, _ -> seq, ScanSuccess ()
-        | _, [] -> seq, ScanError "Scan.skip input sequence not long enough"
-        | _, _ ->
-            match seq |> List.tail |> skip (n - 1) with
-            | _, ScanError err -> seq, ScanError err
-            | seq, ScanSuccess r -> seq, ScanSuccess r
+    let take n substr = 
+        if n <= Substring.length substr
+        then substr |> Substring.subFrom n |> success (substr |> Substring.subTo (n - 1) |> Substring.toString)
+        else substr |> error "Scan.skip input substring not long enough"
 
-    let take n seq = 
-        match seq |> skip n with
-        | _, ScanError err -> seq, ScanError err
-        | newSeq, ScanSuccess _ ->
-            newSeq, 
-            seq |> List.take n |> ScanSeq.string |> ScanSuccess
+    let rec next (scanFunc : ScanFunc<'a>) substr =
+        match substr |> scanFunc with
+        | substr, ScanSuccess value -> substr |> success value
+        | _, ScanError _ ->
+            match substr |> skip 1 with
+            | substr, ScanSuccess _ -> substr |> next scanFunc
+            | _, ScanError _ -> substr |> error "Scan.next did not find match"
 
-    let rec private _trySkipString (pattern : ScanSeq) (seq : ScanSeq) : ScanSeq option = 
-        match pattern, seq with 
-        | [], _ -> Some seq
-        | _, [] -> None
-        | x :: xs, y :: ys when x = y -> _trySkipString xs ys
-        | _ -> None
+    let skipString pattern substr = 
+        if substr |> Substring.startsWith pattern 
+        then substr |> Substring.subFrom (String.length pattern) |> success ()
+        else substr |> error $"Scan.skipString expected to start with '{pattern}' but found '{substr}'"
 
-    let skipString (pattern : string) (seq : ScanSeq) : ScanSeq * ScanResult<unit> = 
-        match seq |> _trySkipString (ScanSeq.ofString pattern) with
-        | Some seq -> seq, ScanSuccess ()
-        | None -> seq |> error $"Scan.skipString expected to start with '{pattern}' but found '{ScanSeq.string seq}'"
+    let skipWhile (pred : char -> bool) substr =
+        match substr |> Substring.tryFindIndex (pred >> not) with
+        | None -> substr |> success ()
+        | Some idx -> substr |> skip idx
 
-    let trySkipString (pattern : string) (seq : ScanSeq) : ScanSeq * ScanResult<bool> = 
-        match skipString pattern seq with
-        | seq, ScanSuccess _ -> seq, ScanSuccess true
-        | seq, ScanError _ -> seq, ScanSuccess false
+    let takeWhile (pred : char -> bool) substr = 
+        match substr |> Substring.tryFindIndex (pred >> not) with
+        | None -> substr |> takeAll
+        | Some idx -> substr |> take idx
 
-    let charsOrEmpty (pred : char -> bool) (seq : ScanSeq) : ScanSeq * ScanResult<string> = 
-        match seq |> List.tryFindIndex (pred >> not) with
-        | None -> seq |> all
-        | Some idx -> seq |> take idx
+    let takeWhileNonEmpty (pred : char -> bool) substr = 
+        match substr |> Substring.tryFindIndex (pred >> not) with
+        | None -> substr |> takeAll
+        | Some 0 -> substr |> error "Scan.chars zero chars matched"
+        | Some idx -> substr |> take idx
 
-    let skipSpaces seq = 
-        let (seq, _) = seq |> charsOrEmpty (fun c -> c = ' ')
-        seq |> success ()
+    let skipSpaces = skipWhile (fun c -> c = ' ')
 
-    let chars pred seq = 
-        match charsOrEmpty pred seq with
-        | seq, ScanError err -> seq |> error err
-        | seq, ScanSuccess str when String.length str = 0 -> seq |> error "Scan.chars zero chars matched"
-        | seq, ScanSuccess str -> seq |> success str
+    let takeDigits substr = 
+        substr |> takeWhileNonEmpty Char.isDigit
 
-    let digits seq = 
-        seq |> chars Char.isDigit
-
-    let positiveInt seq =
-        seq |> scan {
-            let! str = digits
-            return (int str)
+    let takePositiveInt substr =
+        substr |> scan {
+            let! str = takeDigits
+            return (str |> toString |> int)
         }
 
-    let int seq =
-        seq |> scan {
-            let! neg = trySkipString "-"
-            let! str = chars (fun c -> Char.isDigit c)
-            return if neg then -(int str) else (int str)
+    let takeInt substr =
+        substr |> scan {
+            let! neg = skipString "-" >> maybe
+            let! str = takeWhileNonEmpty (fun c -> Char.isDigit c)
+            let posInt = str |> toString |> int
+            return if Option.isSome neg then -posInt else posInt
         }
