@@ -46,7 +46,7 @@ module Str =
     let splitBy (pred : char -> bool) (str : string) : string list = 
         let words, cur = (([], []), str) ||> Seq.fold (fun (words, cur) c -> 
             if pred c then ((cur |> List.rev |> ofList) :: words, []) else (words, c :: cur))
-        (cur |> List.rev |> ofList) :: words
+        (cur |> List.rev |> ofList) :: words |> List.rev
 
     let splitByAndRemoveEmpty pred str =
         str |> splitBy pred |> List.filter (isEmpty >> not)
@@ -62,6 +62,9 @@ module Str =
 
     let extractGroupsBy (filter : char -> bool) str = 
         str |> splitByAndRemoveEmpty (filter >> not)
+
+    let extractInts str = 
+        str |> extractGroupsBy Char.isDigit |> List.map int
 
     let tryFindIndexOfString (pattern : string) (str : string) = 
         match str.IndexOf(pattern) with

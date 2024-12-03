@@ -74,8 +74,11 @@ let main args =
             results
 
     match results with
-    | {Success = 0; Fail = 0} -> printfn $"No puzzles found in '{runPath}'"
-    | results -> printfn $"Success: {results.Success}, Fail: {results.Fail}"
+    | {Success = 0; Fail = 0} -> 
+        let paths = puzzlesByPath |> List.map (fun (path, _) -> path) |> List.sort
+        printfn "No puzzles found in '%s', try one of these:\n%s" runPath (paths |> String.concat "\n")
+    | results -> 
+        printfn $"Success: {results.Success}, Fail: {results.Fail}"
     0
 
     

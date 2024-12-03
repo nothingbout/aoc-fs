@@ -48,7 +48,7 @@ let printUnitHPs units =
 let printSearchResult map foundNodes = 
     map |> printMap (fun pos ->
         match foundNodes |> Map.tryFind pos with
-        | Some node -> Some (Search.BFS.PathNode.distance node % 10 |> toString)
+        | Some node -> Some (node % 10 |> toString)
         | None -> None
     )
 
@@ -60,18 +60,22 @@ let canMoveTo map units toPos =
     map |> Array2.get toPos '#' = '.' && not (units |> Map.containsKey toPos)
 
 let tryFindBestPath map units targetPositions fromPos =
-    let foundNodes = [fromPos] |> Search.BFS.search (fun pos ->
+    let foundNodes = [fromPos] |> Search.bfs (fun pos dist ->
         if targetPositions |> Set.contains pos then 
-            Search.BFS.StopSearch
+            Search.StopSearch
         else
-            Search.BFS.Neighbors (pos |> adjacentPositions |> Seq.filter (fun npos -> canMoveTo map units npos))
+            Search.Neighbors (
+                pos |> adjacentPositions 
+                |> Seq.filter (fun npos -> canMoveTo map units npos)
+                |> Seq.map (fun npos -> (npos, dist + 1))
+            )
     )
     let reachable = targetPositions |> Seq.filter (fun pos -> foundNodes |> Map.containsKey pos)
     if Seq.isEmpty reachable then None
     else
     reachable 
     |> Seq.minBy (fun pos -> ((foundNodes |> Map.find pos).Distance, pos.Y, pos.X))
-    |> fun pos -> foundNodes |> Search.BFS.getPath pos |> Some
+    |> fun pos -> foundNodes |> Search.getPath pos |> Some
 
 let getUnitTargetPositions unit units = 
     units |> Seq.collect (fun (KeyValue (otherPos, otherUnit)) ->
@@ -180,5 +184,5 @@ let getPuzzles () =
         Puzzle.create solveP2 "Part 2" "example4.txt" (Answer.int 3478)
         Puzzle.create solveP2 "Part 2" "example5.txt" (Answer.int 6474)
         Puzzle.create solveP2 "Part 2" "example6.txt" (Answer.int 1140)
-        Puzzle.create solveP2 "Part 2" "input.txt" (Answer.int 0)
+        Puzzle.create solveP2 "Part 2" "input.txt" (Answer.int 46784)
     ]

@@ -21,7 +21,8 @@ module Globals =
 
     let maybe = MaybeBuilder()
 
-    let toString x = $"{x}"
+    let inline toString x = $"{x}"
+    let seqToString x = x |> Seq.map toString |> String.concat "; "
 
     let inspect x = printfn $"{x}"; x
     let inspectSeq seq = 

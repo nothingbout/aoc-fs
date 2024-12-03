@@ -7,9 +7,9 @@ type Instruction = Mul of int * int | Do | Dont
 let scanMul = 
     Scan.scan {
         do! Scan.skipString "mul("
-        let! x = Scan.int
+        let! x = Scan.positiveInt
         do! Scan.skipString ","
-        let! y = Scan.int
+        let! y = Scan.positiveInt
         do! Scan.skipString ")"
         if x < 1000 && y < 1000 then return Mul (x, y)
         else return! Scan.error $"more than three digits"
