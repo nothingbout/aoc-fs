@@ -15,6 +15,9 @@ module ScanFunc =
     let return' value : ScanFunc<'T> = 
         fun scanSeq -> scanSeq, (ScanSuccess value)
 
+    let returnFrom value : ScanFunc<'T> = 
+        value
+
     let bind (curFunc : ScanFunc<'T>) (next : 'T -> ScanFunc<'U>) : ScanFunc<'U> = 
         fun curSeq ->
             let nextSeq, result = curFunc curSeq
@@ -32,6 +35,7 @@ module ScanFunc =
 
 type ScanFuncBuilder() = 
     member _.Return(value) = ScanFunc.return' value
+    member _.ReturnFrom(value) = ScanFunc.returnFrom value
     member _.Bind(scanner, next) = ScanFunc.bind scanner next
     // member _.Yield(next) = ScanFunc.yield' next
 
@@ -57,17 +61,30 @@ module Scan =
         seq, 
         ScanSuccess value
 
+    let option (seq, result) =
+        match result with
+        | ScanSuccess value -> seq, ScanSuccess (Some value)
+        | ScanError _ -> seq, ScanSuccess None
+
     let all seq = 
         List.empty,
         seq |> ScanSeq.string |> ScanSuccess
 
-    let take n pos = 
-        pos |> List.skip n, 
-        pos |> List.take n |> ScanSeq.string |> ScanSuccess
+    let rec skip n seq =
+        match n, seq with
+        | 0, _ -> seq, ScanSuccess ()
+        | _, [] -> seq, ScanError "Scan.skip input sequence not long enough"
+        | _, _ ->
+            match seq |> List.tail |> skip (n - 1) with
+            | _, ScanError err -> seq, ScanError err
+            | seq, ScanSuccess r -> seq, ScanSuccess r
 
-    let skip n pos = 
-        pos |> List.skip n, 
-        ScanSuccess ()
+    let take n seq = 
+        match seq |> skip n with
+        | _, ScanError err -> seq, ScanError err
+        | newSeq, ScanSuccess _ ->
+            newSeq, 
+            seq |> List.take n |> ScanSeq.string |> ScanSuccess
 
     let rec private _trySkipString (pattern : ScanSeq) (seq : ScanSeq) : ScanSeq option = 
         match pattern, seq with 
@@ -112,6 +129,7 @@ module Scan =
 
     let int seq =
         seq |> scan {
-            let! str = chars (fun c -> Char.isDigit c || c = '-')
-            return (int str)
+            let! neg = trySkipString "-"
+            let! str = chars (fun c -> Char.isDigit c)
+            return if neg then -(int str) else (int str)
         }
