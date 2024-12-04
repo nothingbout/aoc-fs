@@ -12,7 +12,7 @@ type Event =
 type LogEntry = { Time : DateTime; Event : Event }
 
 let parseLogEntry (line : string) : LogEntry = 
-    line |> Substring.ofString |> Scan.scan {
+    line |> Substr.ofStr |> Scan.scan {
         // [1518-11-10 23:46] Guard #1973 begins shift
         // [1518-08-14 00:52] falls asleep
         // [1518-05-17 00:55] wakes up

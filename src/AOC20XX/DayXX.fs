@@ -6,7 +6,7 @@ open Utils.Globals
 type Entry = { Str : string }
 
 let parseEntry line = 
-    line |> Substring.ofString |> Scan.scan {
+    line |> Substr.ofStr |> Scan.scan {
         let! str = Scan.takeAll
         return { Str = str |> toString }
     } |> Scan.finish

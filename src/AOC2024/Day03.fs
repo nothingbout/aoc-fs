@@ -25,16 +25,15 @@ let scanInstruction =
         | None ->
         match! Scan.skipString "don't()" >> Scan.maybe with
         | Some () -> return Dont
-        | None -> return! Scan.error "not an instruction"
+        | None -> 
+        return! Scan.error "not an instruction"
     }
 
-let rec scanInstructions (instructions : Instruction list) (substr : Substring) : Instruction list = 
-    match substr |> Scan.next scanInstruction with
-    | _, ScanError _ -> List.rev instructions
-    | substr, ScanSuccess instruction -> substr |> scanInstructions (instruction :: instructions)
+let rec scanInstructions str : Instruction list = 
+    str |> Substr.ofStr |> Scan.allMatches scanInstruction |> Scan.finish
 
 let solveP1 (inputLines: string list) = 
-    let instructions = inputLines |> String.concat "" |> Substring.ofString |> scanInstructions []
+    let instructions = inputLines |> String.concat "" |> scanInstructions
     instructions 
     |> List.map (fun instruction ->
         match instruction with
@@ -44,7 +43,7 @@ let solveP1 (inputLines: string list) =
     |> List.sum |> Answer.int
 
 let solveP2 (inputLines: string list) = 
-    let instructions = inputLines |> String.concat "" |> Substring.ofString |> scanInstructions []
+    let instructions = inputLines |> String.concat "" |> scanInstructions
     ((0, true), instructions) 
     ||> List.fold (fun (sum, enabled) instruction ->
         match instruction with

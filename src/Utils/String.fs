@@ -8,16 +8,14 @@ module Char =
     let isWhitespace c = 
         c = ' ' || c = '\t'
 
-[<Struct>]
-[<CustomEquality>]
-[<NoComparison>]
-type Substring = { Str : string; Range : int Range }
+[<Struct>][<CustomEquality>][<NoComparison>]
+type Substr = { Str : string; Range : int Range }
     with
         member inline a.CharAt i = a.Str[a.Range.Start + i] 
 
         override a.ToString (): string = a.Str.Substring(a.Range.Start, IntRange.length a.Range)
         override a.GetHashCode() = a.ToString().GetHashCode()
-        interface System.IEquatable<Substring> with
+        interface System.IEquatable<Substr> with
             member a.Equals b =
                 printn "Equals b called"
                 let a = a
@@ -26,17 +24,17 @@ type Substring = { Str : string; Range : int Range }
         override a.Equals obj =
             printn "Equals obj called"
             match obj with
-            | :? Substring as b -> (a :> System.IEquatable<_>).Equals b
+            | :? Substr as b -> (a :> System.IEquatable<_>).Equals b
             | _ -> false
 
-module Substring = 
+module Substr = 
     let inline make str range = { Str = str; Range = range }
-    let inline ofString str = make str (IntRange.withLength 0 (String.length str))
-    let toString substr = substr.ToString()
+    let inline ofStr str = make str (IntRange.withLength 0 (String.length str))
+    let toStr substr = substr.ToString()
 
     let inline length { Range = range } = IntRange.length range
     let inline isEmpty substr = length substr = 0
-    let inline charAt i (substr : Substring) = substr.CharAt i
+    let inline charAt i (substr : Substr) = substr.CharAt i
 
     let inline sub from to' r = make r.Str (Range.sub from to' r.Range)
     let inline subFrom from r = make r.Str (Range.subFrom from r.Range)
@@ -46,11 +44,11 @@ module Substring =
         length a = length b && seq { 0..length a - 1 } |> Seq.forall (fun i -> charAt i a = charAt i b)
 
     let startsWith prefix substr =
-        let prefix = ofString prefix
+        let prefix = ofStr prefix
         substr |> subTo (min (length substr - 1) (length prefix - 1)) |> equal prefix
 
     let endsWith suffix substr =
-        let suffix = ofString suffix
+        let suffix = ofStr suffix
         substr |> subFrom (max 0 (length substr - length suffix)) |> equal suffix
 
     let tryTrimPrefix prefix substr =
@@ -79,36 +77,19 @@ module String =
     let ofList (source : char list) = source |> Array.ofList |> System.String
     let ofArray (source : char array) = source |> System.String
     let toArray (source : string) = source.ToCharArray()
+    let isEmpty str = String.length str = 0
 
     let toLower (str : string) = str.ToLower()
     let toUpper (str : string) = str.ToUpper()
-    let sub (from : int) (to' : int) (str : string) = str.Substring(from, to')
-    let subFrom (from : int) (str : string) = str.Substring(from)
-    let subTo (to' : int) (str : string) = str.Substring(0, to' + 1)
-
-    let isEmpty str = String.length str = 0
-    let startsWith (prefix : string) (str : string) = str.StartsWith(prefix)
-    let endsWith (suffix : string) (str : string) = str.EndsWith(suffix)
-
-    let tryTrimPrefix (prefix : string) (str : string) = 
-        if startsWith prefix str
-        then Some <| subFrom (String.length prefix) str
-        else None
-
-    let trimPrefix prefix str = 
-        match tryTrimPrefix prefix str with
-        | Some str -> str
-        | None -> failwith $"expected to start with '{prefix}' but found '{str}'"
-
-    let tryTrimSuffix (suffix : string) (str : string) = 
-        if endsWith suffix str
-        then Some <| subTo (String.length str - String.length suffix - 1) str
-        else None
-
-    let trimSuffix (suffix : string) (str : string) = 
-        match tryTrimSuffix suffix str with
-        | Some str -> str
-        | None -> failwith $"expected to end with '{suffix}' but found '{str}'"
+    let sub from to' =          Substr.ofStr >> Substr.sub from to'         >> Substr.toStr
+    let subFrom from =          Substr.ofStr >> Substr.subFrom from         >> Substr.toStr
+    let subTo to' =             Substr.ofStr >> Substr.subTo to'            >> Substr.toStr
+    let startsWith prefix =     Substr.ofStr >> Substr.startsWith prefix
+    let endsWith suffix =       Substr.ofStr >> Substr.endsWith suffix
+    let tryTrimPrefix prefix =  Substr.ofStr >> Substr.tryTrimPrefix prefix >> Option.map Substr.toStr
+    let tryTrimSuffix suffix =  Substr.ofStr >> Substr.tryTrimSuffix suffix >> Option.map Substr.toStr
+    let trimPrefix prefix =     Substr.ofStr >> Substr.trimPrefix prefix    >> Substr.toStr
+    let trimSuffix suffix =     Substr.ofStr >> Substr.trimSuffix suffix    >> Substr.toStr
 
     let splitBy (pred : char -> bool) (str : string) : string list = 
         let words, cur = (([], []), str) ||> Seq.fold (fun (words, cur) c -> 

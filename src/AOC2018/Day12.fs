@@ -9,7 +9,7 @@ let inputToBoolList (str : string) =
     str :> seq<_> |> Seq.map (fun c -> match c with '#' -> true | '.' -> false | _ -> failwith $"unexpected {c}") |> List.ofSeq
 
 let parseInitialState line = 
-    line |> Substring.ofString |> Scan.scan {
+    line |> Substr.ofStr |> Scan.scan {
         // initial state: #..#.#..##......###...###
         do! Scan.skipString "initial state: "
         let! initial = Scan.takeAll
@@ -17,7 +17,7 @@ let parseInitialState line =
     } |> Scan.finish
 
 let parseRule line = 
-    line |> Substring.ofString |> Scan.scan {
+    line |> Substr.ofStr |> Scan.scan {
         // ..#.. => .
         let! in' = Scan.take 5
         do! Scan.skipString " => "

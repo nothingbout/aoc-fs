@@ -7,7 +7,8 @@ let parseMap lines : Array2<char> =
     
 let getChars pos dir i j map = 
     seq { i..j } |> Seq.map (fun i -> 
-        map |> Array2.get (pos + (dir * i)) '.')
+        map |> Array2.get (pos + (dir * i)) '.'
+    )
 
 let seqMatch a b = 
     Seq.zip a b |> Seq.forall (fun (a, b) -> a = b)

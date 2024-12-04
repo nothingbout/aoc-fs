@@ -6,7 +6,7 @@ open Utils.Globals
 type Star = { Pos : Vec2<int>; Vel : Vec2<int> }
 
 let parseStar line = 
-    line |> Substring.ofString |> Scan.scan {
+    line |> Substr.ofStr |> Scan.scan {
         // position=< 9,  1> velocity=< 0,  2>
         do! Scan.skipString "position=<"
         do! Scan.skipSpaces

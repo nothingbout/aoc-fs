@@ -5,7 +5,7 @@ type ScanResult<'T> =
   | ScanSuccess of 'T
   | ScanError of string
 
-type ScanFunc<'T> = Substring -> Substring * ScanResult<'T>
+type ScanFunc<'T> = Substr -> Substr * ScanResult<'T>
 
 module ScanFunc = 
     let return' value : ScanFunc<'T> = 
@@ -58,43 +58,50 @@ module Scan =
         ScanSuccess value
 
     let takeAll substr = 
-        Substring.ofString "" |> success (substr |> Substring.toString)
+        Substr.ofStr "" |> success (substr |> Substr.toStr)
 
     let skip n substr =
-        if n <= Substring.length substr 
-        then substr |> Substring.subFrom n |> success ()
+        if n <= Substr.length substr 
+        then substr |> Substr.subFrom n |> success ()
         else substr |> error "Scan.skip input substring not long enough"
 
     let take n substr = 
-        if n <= Substring.length substr
-        then substr |> Substring.subFrom n |> success (substr |> Substring.subTo (n - 1) |> Substring.toString)
+        if n <= Substr.length substr
+        then substr |> Substr.subFrom n |> success (substr |> Substr.subTo (n - 1) |> Substr.toStr)
         else substr |> error "Scan.skip input substring not long enough"
 
-    let rec next (scanFunc : ScanFunc<'a>) substr =
+    let rec nextMatch (scanFunc : ScanFunc<'a>) substr =
         match substr |> scanFunc with
         | substr, ScanSuccess value -> substr |> success value
         | _, ScanError _ ->
             match substr |> skip 1 with
-            | substr, ScanSuccess _ -> substr |> next scanFunc
+            | substr, ScanSuccess _ -> substr |> nextMatch scanFunc
             | _, ScanError _ -> substr |> error "Scan.next did not find match"
 
+    let rec private _allMatches (scanFunc : ScanFunc<'a>) (matches : 'a list) substr = 
+        match substr |> nextMatch scanFunc with
+        | _, ScanError _ -> substr |> success (List.rev matches)
+        | substr, ScanSuccess x -> substr |> _allMatches scanFunc (x :: matches)
+
+    let allMatches (scanFunc : ScanFunc<'a>) = _allMatches scanFunc []
+
     let skipString pattern substr = 
-        if substr |> Substring.startsWith pattern 
-        then substr |> Substring.subFrom (String.length pattern) |> success ()
+        if substr |> Substr.startsWith pattern 
+        then substr |> Substr.subFrom (String.length pattern) |> success ()
         else substr |> error $"Scan.skipString expected to start with '{pattern}' but found '{substr}'"
 
     let skipWhile (pred : char -> bool) substr =
-        match substr |> Substring.tryFindIndex (pred >> not) with
+        match substr |> Substr.tryFindIndex (pred >> not) with
         | None -> substr |> success ()
         | Some idx -> substr |> skip idx
 
     let takeWhile (pred : char -> bool) substr = 
-        match substr |> Substring.tryFindIndex (pred >> not) with
+        match substr |> Substr.tryFindIndex (pred >> not) with
         | None -> substr |> takeAll
         | Some idx -> substr |> take idx
 
     let takeWhileNonEmpty (pred : char -> bool) substr = 
-        match substr |> Substring.tryFindIndex (pred >> not) with
+        match substr |> Substr.tryFindIndex (pred >> not) with
         | None -> substr |> takeAll
         | Some 0 -> substr |> error "Scan.chars zero chars matched"
         | Some idx -> substr |> take idx

@@ -6,7 +6,7 @@ type Claim = { ID : int; Rect : Rect<int> }
 
 let parseClaim (line : string) : Claim = 
     // #1264 @ 30,187: 11x20
-    line |> Substring.ofString |> Scan.scan {
+    line |> Substr.ofStr |> Scan.scan {
         do! Scan.skipString "#"
         let! id = Scan.takeInt
         do! Scan.skipString " @ "

@@ -5,7 +5,7 @@ open Utils.Globals
 type Input = { NumPlayers : int; FinalValue : int }
 
 let parseInput line = 
-    line |> Substring.ofString |> Scan.scan {
+    line |> Substr.ofStr |> Scan.scan {
         // 10 players; last marble is worth 1618 points
         let! players = Scan.takeInt
         do! Scan.skipString " players; last marble is worth "

@@ -6,7 +6,7 @@ open Utils.Globals
 type Dependency = { Src : char; Dst : char }
 
 let parseDependency line = 
-    line |> Substring.ofString |> Scan.scan {
+    line |> Substr.ofStr |> Scan.scan {
         // Step D must be finished before step X can begin.
         do! Scan.skipString "Step "
         let! src = Scan.take 1
