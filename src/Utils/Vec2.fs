@@ -45,6 +45,10 @@ module Vec2 =
     let inline degreesDeltaNegative src dst = degreesDeltaPositive src dst - 360.0
     let inline degreesDelta src dst = degreesDeltaPositive src dst |> fun d -> if d <= 180.0 then d else d - 360.0
 
+    let dir4 = [ make 1 0; make 0 -1; make -1 0; make 0 1 ]
+    let diag4 = [ make 1 -1; make -1 -1; make -1 1; make 1 1 ]
+    let dir8 = List.zip dir4 diag4 |> List.map (fun (a, b) -> [a; b]) |> List.concat
+
 [<Struct>]
 type Rect<'T> = { XR : Range<'T>; YR : Range<'T> }
 
@@ -127,6 +131,24 @@ module Array2 =
     let contains pos source = pos.X >= 0 && pos.Y >= 0 && pos.X < width source && pos.Y < height source
     let get pos orDefault source = if source |> contains pos then source[pos] else orDefault
     let map mapping source = make (dims source) (buffer source |> Array.map mapping)
+    let fold folder state source = buffer source |> Array.fold folder state
+    let sum source = source |> fold (+) 0
+
+    let mapi mapping source = 
+        seq {
+            for y = 0 to height source - 1 do
+                for x = 0 to width source - 1 do
+                    let pos = Vec2.make x y
+                    yield mapping pos source[pos]
+        } |> Array.ofSeq |> make (dims source)
+
+    let foldi folder state source = 
+        let mutable state = state
+        for y = 0 to height source - 1 do
+            for x = 0 to width source - 1 do
+                let pos = Vec2.make x y
+                state <- folder state pos source[pos]
+        state
 
     let iteri action source = 
         for y = 0 to height source - 1 do
