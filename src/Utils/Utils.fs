@@ -101,9 +101,17 @@ module List =
 
     let permutations source = source |> permutationsSeq |> List.ofSeq
 
+    let groupByIntoMap keyProjection valueProjection source =
+        source |> List.groupBy keyProjection
+        |> Map.ofSeq |> Map.map (fun _ x -> x |> List.map valueProjection)
+
 module Seq = 
     let foldHead folder source = 
         Seq.fold folder (Seq.head source) (Seq.tail source)
+
+    let groupByIntoMap keyProjection valueProjection source =
+        source |> Seq.groupBy keyProjection
+        |> Map.ofSeq |> Map.map (fun _ x -> x |> Seq.map valueProjection)
 
 module Array = 
     let inline swap i j (source : 'a array) = 
