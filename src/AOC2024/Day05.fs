@@ -7,24 +7,19 @@ let parseRule line =
     | [x; y] -> (int x, int y)
     | _ -> failwith "unexpected"
 
-let rec parseRules rules lines = 
-    match lines with
-    | line :: _ when line = "" -> lines, rules |> Seq.groupByIntoMap fst snd
-    | line :: lines -> lines |> parseRules (parseRule line :: rules)
-    | _ -> failwith "unexpected"
-
 let parseUpdate line = 
     line |> String.splitByString "," |> List.map int |> Array.ofList
 
 let parseInput lines = 
-    let lines, rules = lines |> parseRules []
-    let updates = lines |> List.skip 1 |> List.map parseUpdate
+    let rulesList = lines |> List.filter (String.containsString "|") |> List.map parseRule
+    let rules = rulesList |> List.groupByAndMapIntoSet fst snd |> Map.ofList
+    let updates = lines |> List.filter (String.containsString ",")  |> List.map parseUpdate
     rules, updates
 
 let sortByRules rules update = 
     update |> Array.sortWith (fun x y ->
-        if rules |> Map.get x Seq.empty |> Seq.contains y then -1
-        else if rules |> Map.get y Seq.empty |> Seq.contains x then 1
+        if rules |> Map.get x Set.empty |> Set.contains y then -1
+        else if rules |> Map.get y Set.empty |> Set.contains x then 1
         else 0
     )
 
@@ -41,7 +36,7 @@ let solveP1 (inputLines: string list) =
 let solveP2 (inputLines: string list) = 
     let rules, updates = inputLines |> parseInput
     updates |> List.filter (isInCorrectOrder rules >> not) 
-    |> List.map (sortByRules rules) |> List.sumBy mid |> Answer.int
+    |> List.sumBy (sortByRules rules >> mid) |> Answer.int
 
 let getPuzzles () = 
     [

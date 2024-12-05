@@ -1,6 +1,6 @@
 module Utils.Search
 open Utils
-open Utils.Globals
+open Globals
 
 [<Struct>]
 type PathNode<'a, 'b> = { FromPos : 'a option; Distance : 'b; IsExpanded : bool }

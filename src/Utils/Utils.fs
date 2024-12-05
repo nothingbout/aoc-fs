@@ -21,7 +21,7 @@ module Globals =
 
     let maybe = MaybeBuilder()
 
-    let inline toString x = $"{x}"
+    let inline toString x = x.ToString()
     let seqToString x = x |> Seq.map toString |> String.concat "; "
 
     let inspect x = printfn $"{x}"; x
@@ -101,17 +101,34 @@ module List =
 
     let permutations source = source |> permutationsSeq |> List.ofSeq
 
-    let groupByIntoMap keyProjection valueProjection source =
-        source |> List.groupBy keyProjection
-        |> Map.ofSeq |> Map.map (fun _ x -> x |> List.map valueProjection)
+    let groupByAndMap keyProjection valueProjection source =
+        source |> List.groupBy keyProjection |> List.map (fun (key, values) -> key, values |> List.map valueProjection)
+
+    let groupByAndMapIntoSet keyProjection valueProjection source =
+        source |> List.groupBy keyProjection |> List.map (fun (key, values) -> key, values |> List.map valueProjection |> Set.ofList)
+
+    let groupByMapAndFold keyProjection valueProjection folder state source =
+        source |> List.groupBy keyProjection |> List.map (
+            fun (key, values) -> key, values |> List.map valueProjection |> List.fold folder state)
+
+    let trySplitAtFirst predicate source = 
+        match source |> List.tryFindIndex predicate with
+        | Some idx -> Some (source |> List.splitAt idx)
+        | None -> None
+
+    let splitAtFirst predicate source =
+        source |> trySplitAtFirst predicate |> Option.get
 
 module Seq = 
-    let foldHead folder source = 
-        Seq.fold folder (Seq.head source) (Seq.tail source)
+    let groupByAndMap keyProjection valueProjection source =
+        source |> Seq.groupBy keyProjection |> Seq.map (fun (key, values) -> key, values |> Seq.map valueProjection)
 
-    let groupByIntoMap keyProjection valueProjection source =
-        source |> Seq.groupBy keyProjection
-        |> Map.ofSeq |> Map.map (fun _ x -> x |> Seq.map valueProjection)
+    let groupByAndMapIntoSet keyProjection valueProjection source =
+        source |> Seq.groupBy keyProjection |> Seq.map (fun (key, values) -> key, values |> Seq.map valueProjection |> Set.ofSeq)
+
+    let groupByMapAndFold keyProjection valueProjection folder state source =
+        source |> Seq.groupBy keyProjection |> Seq.map (
+            fun (key, values) -> key, values |> Seq.map valueProjection |> Seq.fold folder state)
 
 module Array = 
     let inline swap i j (source : 'a array) = 

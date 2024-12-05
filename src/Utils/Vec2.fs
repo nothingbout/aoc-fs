@@ -9,14 +9,15 @@ type Vec2<'T> = {X : 'T; Y : 'T}
         static member inline ( ~- ) (a) = {X = -a.X; Y = -a.Y}
         static member inline ( + ) (a, b) = {X = a.X + b.X; Y = a.Y + b.Y}
         static member inline ( - ) (a, b) = {X = a.X - b.X; Y = a.Y - b.Y}
-        static member inline ( * ) (a, s) = {X = a.X * s; Y = a.Y * s}
-        static member inline ( * ) (s, a) = {X = a.X * s; Y = a.Y * s}
-        static member inline ( / ) (a, s) = {X = a.X / s; Y = a.Y / s}
+        static member inline ( * ) (a : Vec2<'a>, s : 'a) = {X = a.X * s; Y = a.Y * s}
+        static member inline ( * ) (a, b : Vec2<_>) = {X = a.X * b.X; Y = a.Y * b.Y}
+        static member inline ( / ) (a : Vec2<'a>, s : 'a) = {X = a.X / s; Y = a.Y / s}
+        static member inline ( / ) (a, b : Vec2<_>) = {X = a.X / b.X; Y = a.Y / b.Y}
 
 module Vec2 = 
     let inline make x y = {X = x; Y = y}
     let inline makeZero () = make (makeZero ()) (makeZero ())
-    let inline fromTuple (x, y) = make x y
+    let inline ofTuple (x, y) = make x y
     let inline map f a = make (f a.X) (f a.Y)
     let inline min a b = make (min a.X b.X) (min a.Y b.Y)
     let inline max a b = make (max a.X b.X) (max a.Y b.Y)
@@ -26,8 +27,6 @@ module Vec2 =
     let inline abs a = make (abs a.X) (abs a.Y)
     let inline sum a = a.X + a.Y
     let inline product a = a.X * a.Y
-    let inline mul a b = make (a.X * b.X) (a.Y * b.Y)
-    let inline div a b = make (a.X / b.X) (a.Y / b.Y)
     let inline dot a b = a.X * b.X + a.Y * b.Y
 
     let readingOrder a b =
@@ -66,7 +65,7 @@ module Rect =
             return { XR = xr; YR = yr }
         }
 
-    let encapsulating points = make (points |> Seq.foldHead Vec2.min) (points |> Seq.foldHead Vec2.max)
+    let encapsulating points = make (points |> Seq.reduce Vec2.min) (points |> Seq.reduce Vec2.max)
 
     let inline expand amount r = make (start r - amount) (finish r + amount)
 

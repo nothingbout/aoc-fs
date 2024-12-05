@@ -9,6 +9,7 @@
     <Compile Include="src/Utils/Queue.fs" />
     <Compile Include="src/Utils/String.fs" />
     <Compile Include="src/Utils/Scan.fs" />
+    <Compile Include="src/Utils/Vec.fs" />
     <Compile Include="src/Utils/Vec2.fs" />
     <Compile Include="src/Utils/Search.fs" />
     <Compile Include="src/Utils/Puzzle.fs" />

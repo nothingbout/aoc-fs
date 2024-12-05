@@ -1,5 +1,5 @@
 namespace Utils
-open Utils.Globals
+open Globals
 
 module Char = 
     let isDigit c = 
@@ -119,6 +119,8 @@ module String =
         | idx when idx >= 0 -> Some idx
         | -1 -> None
         | idx -> failwith $"unexpected idx {idx}"
+
+    let containsString (pattern : string) = tryFindIndexOfString pattern >> Option.isSome
 
     let replaceOccurencesOfString (pattern : string) (replaceWith : string) (str : string) =
         str.Replace(pattern, replaceWith)
