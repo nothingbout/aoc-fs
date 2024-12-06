@@ -10,6 +10,7 @@ module Globals =
         if r >= makeZero () then r else r + divisor
 
     let (>>=) ma f = Option.bind f ma
+    let (|?>) ma f = Option.map f ma
     
     type MaybeBuilder() =
         member _.Bind(m, f) = 
@@ -20,6 +21,9 @@ module Globals =
             x
 
     let maybe = MaybeBuilder()
+
+    let inline fstv (struct (a, _)) = a
+    let inline sndv (struct (_, b)) = b
 
     let inline toString x = x.ToString()
     let seqToString x = x |> Seq.map toString |> String.concat "; "
@@ -81,6 +85,26 @@ module IntRange =
 //         let range2 = Range.make 5I 15I
 //         let range3 = Range.intersect range range2
 //         ()
+
+module BinarySearch = 
+    ///The collection must be sorted in ascending order as per the provided comparer, i.e.
+    ///the comparer must return true for the sought for index and all indices lower than it.
+    ///Returns the highest index for which the comparer returns true.
+    ///Returns nil if the comparer returns false for the min index.
+    let inline lastLessOrEqual isLEQ start finish =
+        let mutable start = start
+        let mutable finish = finish
+        while start <> finish && start + makeOne () <> finish do
+            let middle = (start + finish) / (makeOne () + makeOne ())
+            if isLEQ middle then
+                // mid may be the sought for index, since comparer returned true, so include it in search
+                start <- middle
+            else
+                // mid can't be the sought for index, since comparer returned false, so exclude it from the search
+                finish <- middle - makeOne ()                
+        if isLEQ finish then Some finish
+        else if start <> finish && isLEQ start then Some start
+        else None
 
 module List = 
     let foldHead folder source = 
@@ -144,6 +168,25 @@ module Array =
                 _iter action arr (i + 1)
                 swap i j arr
         _iter action (Array.copy source) 0
+
+    let binarySearchLessOrEqual value source =
+        if Array.isEmpty source then None
+        else (0, Array.length source - 1) ||> BinarySearch.lastLessOrEqual (fun i -> source[i] <= value)
+
+    let binarySearchEqual value source = 
+        match binarySearchLessOrEqual value source with
+        | Some idx -> if source[idx] = value then Some idx else None
+        | None -> None
+
+    let insertSorted value source = 
+        match binarySearchLessOrEqual value source with
+        | Some idx -> source |> Array.insertAt (idx + 1) value
+        | None -> source |> Array.insertAt 0 value
+
+    let insertSortedUnique value source = 
+        match binarySearchLessOrEqual value source with
+        | Some idx -> if source[idx] = value then source else source |> Array.insertAt (idx + 1) value
+        | None -> source |> Array.insertAt 0 value
 
 module Map =
     let inline get key orDefault = 

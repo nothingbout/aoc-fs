@@ -89,26 +89,6 @@ module IntRect =
 //         let range3 = Range.intersect range range2
 //         ()
 
-module GridMap = 
-    let printLines lines = 
-        lines |> List.iter (printfn "%s")
-
-    let toLinesWithFunc (func : Vec2<int> -> string) (bounds : Rect<int>) : string list =
-        [for y in IntRange.toSeq bounds.YR ->
-            [for x in IntRange.toSeq bounds.XR ->
-                Vec2.make x y |> func
-            ] |> String.concat ""]
-
-    let toLines (bounds : Rect<int>) (emptySpace : string) (map : Map<Vec2<int>, string>) : string list =
-        bounds |> toLinesWithFunc (fun pos -> 
-            match map |> Map.tryFind pos with
-            | None -> emptySpace
-            | Some value -> value
-        )
-
-    let toLinesAutoBounds emptyChar map = 
-        toLines (Map.keys map |> Rect.encapsulating) emptyChar map
-
 type Array2<'a>(dims : Vec2<int>, buffer : 'a array) = 
     member _.Dims = dims
     member _.Buffer = buffer
@@ -179,4 +159,3 @@ module Array2 =
 
     let toStringLines source = 
         source |> rows |> Array.map String.ofArray
-
