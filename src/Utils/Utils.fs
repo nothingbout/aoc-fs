@@ -160,6 +160,9 @@ module Array =
         source[i] <- source[j]
         source[j] <- tmp
 
+    let groupByAndMap keyProjection valueProjection source =
+        source |> Array.groupBy keyProjection |> Array.map (fun (key, values) -> key, values |> Array.map valueProjection)
+
     let iterPermutations action source = 
         let rec _iter action arr i = 
             if i = Array.length arr - 1 then action (Array.copy arr)
