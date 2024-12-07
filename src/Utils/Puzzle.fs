@@ -5,6 +5,7 @@ module Answer =
     | None
     | Int of int
     | Int64 of int64
+    | Bigint of bigint
     | String of string
     with
         override this.ToString() = 
@@ -12,11 +13,13 @@ module Answer =
             | None -> $"None"
             | Int x -> $"{x}"
             | Int64 x -> $"int64 {x}"
+            | Bigint x -> $"bigint {x}"
             | String x -> $"\"{x}\""
 
     let none = None
     let int x = Int x
     let int64 x = Int64 x
+    let bigint x = Bigint x
     let string x = String x
 
 type Puzzle = {
