@@ -44,7 +44,9 @@ module Puzzle =
 
     let run path puzzle = 
         let inputFile = $"data/{path}/{puzzle.Input}"
-        let inputLines = System.IO.File.ReadAllLines inputFile |> Array.toList
+        match File.tryReadLinesWithLogging inputFile with
+        | None -> Result.Fail
+        | Some inputLines ->
         let sw = System.Diagnostics.Stopwatch.StartNew()
         let answer = puzzle.Solve inputLines
         sw.Stop()

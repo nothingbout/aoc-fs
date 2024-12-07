@@ -38,10 +38,10 @@ type ScanFuncBuilder() =
 module Scan = 
     let scan = ScanFuncBuilder()
 
-    let finish (_substr, result) : 'T =
+    let finish (substr, result) : 'T =
         match result with
         | ScanSuccess value -> value
-        | ScanError err -> failwith err
+        | ScanError err -> failwith $"{err} at \"{substr}\""
 
     let maybe (substr, result) =
         match result with
