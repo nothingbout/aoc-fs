@@ -43,9 +43,9 @@ module Globals =
         // if result < makeZero() then failwith "expected a positive result but got {result}... overflow?"
         result
 
-    let countIntDigits = countIntegerDigits 10
-    let countInt64Digits = countIntegerDigits 10L
-    let countBigintDigits = countIntegerDigits 10I
+    let countDigits = countIntegerDigits 10
+    let countDigitsInt64 = countIntegerDigits 10L
+    let countDigitsBigint = countIntegerDigits 10I
     let concatInts = concatIntegers 10
     let concatInt64s = concatIntegers 10L
     let concatBigints = concatIntegers 10I
