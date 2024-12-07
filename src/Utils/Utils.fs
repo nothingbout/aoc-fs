@@ -29,6 +29,27 @@ module Globals =
     let seqToString x = x |> Seq.map toString |> String.concat "; "
     let bigintOfString str = System.Numerics.BigInteger.Parse(str)
 
+    let inline countIntegerDigits base' a = 
+        let mutable digits = 1
+        let mutable rem = a
+        while rem >= base' do
+            digits <- digits + 1
+            rem <- rem / base'
+        digits
+
+    let inline concatIntegers base' a b = 
+        // if a < makeZero () || b < makeZero () then failwith "expected positive integers but got {a} and {b}"
+        let result = a * pown base' (countIntegerDigits base' b) + b
+        // if result < makeZero() then failwith "expected a positive result but got {result}... overflow?"
+        result
+
+    let countIntDigits = countIntegerDigits 10
+    let countInt64Digits = countIntegerDigits 10L
+    let countBigintDigits = countIntegerDigits 10I
+    let concatInts = concatIntegers 10
+    let concatInt64s = concatIntegers 10L
+    let concatBigints = concatIntegers 10I
+
     let inspect x = printfn $"{x}"; x
     let inspectSeq seq = 
         printfn "seq {"

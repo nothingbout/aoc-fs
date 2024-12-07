@@ -1,6 +1,7 @@
 module AOC2024.Day07
 open Utils
 open Utils.Globals
+open System.Numerics
 
 [<Struct>]
 type Entry = { Value : int64; Nums : int64 list }
@@ -14,6 +15,8 @@ let parseEntry line =
     } |> Scan.finish
 
 let rec isTrueRec ops target cur xs = 
+    if cur < 0L || cur > target then false
+    else
     match xs with 
     | [] -> cur = target
     | x :: xs -> ops |> Seq.exists (fun op -> isTrueRec ops target (op cur x) xs)
@@ -31,13 +34,12 @@ let solveP1 (inputLines: string list) =
     inputLines |> solve [( + ); ( * )] |> Answer.int64
 
 let solveP2 (inputLines: string list) = 
-    let (@@) a b = toString a + toString b |> int64
-    inputLines |> solve [( + ); ( * ); ( @@ )] |> Answer.int64
+    inputLines |> solve [( + ); ( * ); concatInt64s] |> Answer.int64
 
 let getPuzzles () = 
     [
-        Puzzle.create solveP1 "Part 1" "example.txt" (Answer.int64 3749)
+        Puzzle.create solveP1 "Part 1" "example.txt" (Answer.int64 3749L)
         Puzzle.create solveP1 "Part 1" "input.txt" (Answer.int64 2654749936343L)
-        Puzzle.create solveP2 "Part 2" "example.txt" (Answer.int64 11387)
+        Puzzle.create solveP2 "Part 2" "example.txt" (Answer.int64 11387L)
         Puzzle.create solveP2 "Part 2" "input.txt" (Answer.int64 124060392153684L)
     ]
