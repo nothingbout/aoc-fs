@@ -50,7 +50,81 @@ module Globals =
     let concatInt64s = concatIntegers 10L
     let concatBigints = concatIntegers 10I
 
-    let inspect x = printfn $"{x}"; x
+    module JSON = 
+        open System.Text.Json
+        open System.Text.Json.Serialization
+
+        type FormatOptions = { MaxInlineWidth : int }
+        module FormatOptions = 
+            let defaults = { MaxInlineWidth = 80 }
+
+        type FormatResult = InlineString of string | IndentedLines of string
+        module FormatResult = 
+            let isInlineString result = match result with InlineString _ -> true | _ -> false
+            let isIndentedLines result = match result with IndentedLines _ -> true | _ -> false
+            let inlineString result = match result with InlineString str -> str | _ -> failwith "not an inline result"
+            let indentedLines result = match result with IndentedLines lines -> lines | _ -> failwith "not an indented result"
+
+        let private tryFormatResultsAsInlineArray options formatResults = 
+            if not (formatResults |> Seq.forall FormatResult.isInlineString) then None
+            else
+            let elemsStr = formatResults |> Seq.map FormatResult.inlineString |> String.concat ", "
+            let formatted = $"[{elemsStr}]"
+            if String.length formatted <= options.MaxInlineWidth then Some formatted else None
+
+        let private tryFormatResultsAsInlineObject options namesWithFormatResults = 
+            if not (namesWithFormatResults |> Seq.map snd |> Seq.forall FormatResult.isInlineString) then None
+            else
+            let elemsStr = namesWithFormatResults |> Seq.map (fun (name, result) ->
+                                $"{name}: {FormatResult.inlineString result}") |> String.concat ", "
+            let formatted = $"{{ {elemsStr} }}"
+            if String.length formatted <= options.MaxInlineWidth then Some formatted else None
+
+        let rec private formatElement options level (element : JsonElement) = 
+            let curIndentation = System.String(' ', level * 2)
+            let nextIndentation = curIndentation + System.String(' ', 2)
+            match element.ValueKind with 
+            | JsonValueKind.Object ->
+                let childResultsWithNames = element.EnumerateObject() |> Seq.map (
+                    fun prop -> (prop.Name, prop.Value |> formatElement options (level + 1)))
+                match childResultsWithNames |> tryFormatResultsAsInlineObject options with
+                | Some str -> InlineString str
+                | None ->
+                    childResultsWithNames |> Seq.map (fun (name, result) -> 
+                        match result with
+                        | InlineString str -> $"{nextIndentation}{name}: {str}"
+                        | IndentedLines lines -> 
+                            if not (lines.StartsWith(nextIndentation)) then failwith $"unexpected indentation at {lines}"
+                            let trimmedLines = lines.Substring(String.length nextIndentation)
+                            $"{nextIndentation}{name}: {trimmedLines}"
+                    ) |> String.concat ",\n" 
+                    |> fun lines -> IndentedLines $"{curIndentation}{{\n{lines}\n{curIndentation}}}"
+            | JsonValueKind.Array ->
+                let childResults = element.EnumerateArray() |> Seq.map (formatElement options (level + 1))
+                match childResults |> tryFormatResultsAsInlineArray options with
+                | Some str -> InlineString str
+                | None ->
+                    childResults |> Seq.map (fun result -> 
+                        match result with
+                        | InlineString str -> nextIndentation + str
+                        | IndentedLines lines -> lines
+                    ) |> String.concat ",\n" 
+                    |> fun lines -> IndentedLines $"{curIndentation}[\n{lines}\n{curIndentation}]"
+            | JsonValueKind.String -> InlineString $"\"{element.GetString()}\""
+            | JsonValueKind.Number | JsonValueKind.True | JsonValueKind.False -> InlineString $"{element.GetRawText()}"
+            | JsonValueKind.Null -> InlineString "null"
+            | _ -> failwith $"unexpected ValueKind {element.ValueKind}"
+
+        let serializeToString formatOptions x = 
+            // Using JsonFSharp to support distriminated unions. Add any .WithXXX() calls to customize the format
+            let options = JsonFSharpOptions.Default().ToJsonSerializerOptions()
+            match System.Text.Json.JsonSerializer.SerializeToElement(x, options) |> formatElement formatOptions 0 with
+            | InlineString line -> line
+            | IndentedLines lines -> lines
+
+    let inspectWithLabel label x = printfn $"{label}: {JSON.serializeToString JSON.FormatOptions.defaults x}"; x
+    let inspect x = inspectWithLabel "INSPECT" x
+
     let inspectSeq seq = 
         printfn "seq {"
         seq |> Seq.iter (fun x -> printfn $"    {x}")
@@ -61,6 +135,13 @@ module Globals =
     let printSeq seq = inspectSeq seq |> ignore
 
 open Globals
+
+module File = 
+    let tryReadLinesWithLogging path = 
+        try
+            System.IO.File.ReadAllLines path |> Array.toList |> Some
+        with
+            | :? System.IO.FileNotFoundException -> printfn $"File not found: {path}"; None
 
 [<Struct>]
 type Range<'T> = {Start : 'T; Finish : 'T}

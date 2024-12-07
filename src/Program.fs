@@ -57,7 +57,8 @@ let getPuzzlesByPathInNamespace (ns : string) : (string * Puzzle list) list =
 [<EntryPoint>]
 let main args =
     let runPath = if args.Length > 0 then args[0] |> String.toLower else ""
-
+    if runPath = "readme" then Readme.makeReadmeFile (); 0
+    else
     let puzzlesByPath = 
         seq {
             getPuzzlesByPathInNamespace "Benchmark"

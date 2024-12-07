@@ -17,6 +17,10 @@
     <Compile Include="src/AOC20XX/*.fs" />
     <Compile Include="src/AOC2018/*.fs" />
     <Compile Include="src/AOC2024/*.fs" />
+    <Compile Include="src/Readme.fs" />
     <Compile Include="src/Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FSharp.SystemTextJson" Version="1.3.13" />
   </ItemGroup>
 </Project>
