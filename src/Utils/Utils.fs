@@ -27,6 +27,7 @@ module Globals =
 
     let inline toString x = x.ToString()
     let seqToString x = x |> Seq.map toString |> String.concat "; "
+    let bigintOfString str = System.Numerics.BigInteger.Parse(str)
 
     let inspect x = printfn $"{x}"; x
     let inspectSeq seq = 

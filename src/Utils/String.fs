@@ -111,8 +111,11 @@ module String =
     let extractGroupsBy (filter : char -> bool) str = 
         str |> splitByAndRemoveEmpty (filter >> not)
 
+    let extractDigitGroups str = 
+        str |> extractGroupsBy Char.isDigit
+
     let extractInts str = 
-        str |> extractGroupsBy Char.isDigit |> List.map int
+        str |> extractDigitGroups |> List.map int
 
     let tryFindIndexOfString (pattern : string) (str : string) = 
         match str.IndexOf(pattern) with
