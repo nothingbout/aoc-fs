@@ -14,27 +14,37 @@ let parseEntry line =
         return { Value = int64 value; Nums = String.extractDigitGroups rest |> List.map int64 }
     } |> Scan.finish
 
-let rec isTrueRec ops target cur xs = 
-    if cur < 0L || cur > target then false
-    else
-    match xs with 
-    | [] -> cur = target
-    | x :: xs -> ops |> Seq.exists (fun op -> isTrueRec ops target (op cur x) xs)
+let rec backsearch unops ys z = 
+    match ys with 
+    | [y] -> z = y
+    | y :: xs -> unops |> Seq.exists (fun unop -> 
+        match unop y z with
+        | Some x -> backsearch unops xs x
+        | None -> false
+        )
+    | [] -> failwith "unexpected"
 
-let isTrue ops entry = 
-    match entry.Nums with
-    | x :: xs ->  isTrueRec ops entry.Value x xs
-    | _ -> failwith "unexpected"
+let isTrue unops entry = 
+    backsearch unops (List.rev entry.Nums) entry.Value
 
-let solve ops inputLines = 
+let unadd y z = 
+    let x = z - y in if x < 0L then None else Some x
+
+let unmul y z = 
+    if z % y <> 0L then None else Some (z / y)
+
+let uncat y z =
+    let pow = pown 10L (countDigitsInt64 y) in if z % pow <> y then None else Some (z / pow)
+
+let solve unops inputLines = 
     let entries = inputLines |> List.map parseEntry
-    entries |> List.filter (isTrue ops) |> List.sumBy (fun entry -> entry.Value)
+    entries |> List.filter (isTrue unops) |> List.sumBy (fun entry -> entry.Value)
 
 let solveP1 (inputLines: string list) = 
-    inputLines |> solve [( + ); ( * )] |> Answer.int64
+    inputLines |> solve [unadd; unmul] |> Answer.int64
 
 let solveP2 (inputLines: string list) = 
-    inputLines |> solve [( + ); ( * ); concatInt64s] |> Answer.int64
+    inputLines |> solve [unadd; unmul; uncat] |> Answer.int64
 
 let getPuzzles () = 
     [
