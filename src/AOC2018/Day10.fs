@@ -34,7 +34,7 @@ let rec stepUntilWeHaveText textHeight stars step =
     let newStars = 
         stars 
         |> List.map (fun { Pos = pos; Vel = vel } -> { Pos = pos + vel; Vel = vel }) 
-        |> List.filter (fun star -> bounds |> Rect.contains star.Pos)    
+        |> List.filter (fun star ->  Rect.contains star.Pos bounds)    
     (newStars, step + 1) ||> stepUntilWeHaveText textHeight
 
 let solveP1 textHeight (inputLines: string list) = 

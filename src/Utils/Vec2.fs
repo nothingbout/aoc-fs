@@ -56,7 +56,7 @@ module Rect =
     let inline start r = Vec2.make (Range.start r.XR) (Range.start r.YR)
     let inline finish r = Vec2.make (Range.finish r.XR) (Range.finish r.YR)
 
-    let inline contains p r = Range.contains r.XR p.X && Range.contains r.YR p.Y
+    let inline contains p r = Range.contains p.X r.XR && Range.contains p.Y r.YR
 
     let inline intersect a b = 
         maybe {

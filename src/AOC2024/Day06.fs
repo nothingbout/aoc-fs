@@ -39,7 +39,7 @@ type State = { Pos : int Vec2; Dir : char; Visited : (int Vec2 * char) Set }
 module State = 
     let make pos dir visited = {Pos = pos; Dir = dir; Visited = visited}
     let hasVisitedPos pos state = allDirs |> Seq.exists (fun dir -> state.Visited |> Set.contains (pos, dir))
-    let isOOB bounds state = bounds |> Rect.contains state.Pos |> not
+    let isOOB bounds state = Rect.contains state.Pos bounds |> not
 
 let moveOnce map state =
     let mutable nextDir = state.Dir

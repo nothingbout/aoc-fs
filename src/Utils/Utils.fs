@@ -143,6 +143,11 @@ module File =
         with
             | :? System.IO.FileNotFoundException -> printfn $"File not found: {path}"; None
 
+module Math = 
+    let rec gcd a b = 
+        if b = 0 then abs a 
+        else gcd b (a % b)
+
 [<Struct>]
 type Range<'T> = {Start : 'T; Finish : 'T}
 
@@ -160,7 +165,7 @@ module Range =
     let inline sub from to' r = 
         r |> subTo to' |> subFrom from
 
-    let inline contains r x = r.Start <= x && x <= r.Finish
+    let inline contains x r = r.Start <= x && x <= r.Finish
 
     let union a b = 
         make (min a.Start b.Start) (max a.Finish b.Finish)
