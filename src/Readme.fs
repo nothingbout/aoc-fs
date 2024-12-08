@@ -123,5 +123,5 @@ let makeTimestableLines name path =
 let makeReadmeFile () = 
     let mutable lines = []
     lines <- makeTimestableLines "Advent of Code 2024" "aoc2024" |> List.append lines
-    System.IO.File.WriteAllLines("README", lines |> Array.ofList)
+    System.IO.File.WriteAllLines("src/AOC2024/README", lines |> Array.ofList)
     ()
