@@ -66,7 +66,7 @@ let main args =
             getPuzzlesByPathInNamespace "AOC2024"
         } |> List.concat |> List.sortBy (fun (path, _) -> path)
 
-    let results : Puzzle.Results = {Success = 0; Fail = 0}
+    let results : Puzzle.Results = {Success = 0; Fail = 0; InputNotFound = 0}
     let results = 
         puzzlesByPath |> List.fold
             (fun (results: Puzzle.Results) (path: string, puzzles: Puzzle list) -> 
@@ -79,7 +79,7 @@ let main args =
         let paths = puzzlesByPath |> List.map (fun (path, _) -> path) |> List.sort
         printfn "No puzzles found in '%s', try one of these:\n%s" runPath (paths |> String.concat "\n")
     | results -> 
-        printfn $"Success: {results.Success}, Fail: {results.Fail}"
+        printfn "Success: %d, Fail: %d%s" results.Success results.Fail (if results.InputNotFound > 0 then $", Input Not Found: {results.InputNotFound}" else "")
     0
 
     

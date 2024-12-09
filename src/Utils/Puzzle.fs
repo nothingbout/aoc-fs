@@ -33,10 +33,12 @@ module Puzzle =
     type Result = 
     | Success
     | Fail
+    | InputNotFound
 
     type Results = {
         Success : int
         Fail : int
+        InputNotFound : int
     }
 
     let create solve label input expected = 
@@ -45,7 +47,7 @@ module Puzzle =
     let run path puzzle = 
         let inputFile = $"data/{path}/{puzzle.Input}"
         match File.tryReadLinesWithLogging inputFile with
-        | None -> Result.Fail
+        | None -> Result.InputNotFound
         | Some inputLines ->
         let sw = System.Diagnostics.Stopwatch.StartNew()
         let answer = puzzle.Solve inputLines
@@ -56,15 +58,17 @@ module Puzzle =
             match result with
             | Success -> " [OK]"
             | Fail -> $" != {puzzle.Expected} [FAIL]"
+            | InputNotFound -> failwith "unexpected"
         let formattedTime = Printf.sprintf "%.2f ms" sw.Elapsed.TotalMilliseconds
         printfn $"{mainOutput}{resultOutput}, took {formattedTime}"
         result
 
     let runMany path puzzles (results : Results) : Results = 
         printfn $"{path}:"
-        puzzles |> List.fold (fun {Success = success; Fail = fail} puzzle ->
+        puzzles |> List.fold (fun results puzzle ->
             match run path puzzle with
-            | Success -> {Success = success + 1; Fail = fail}
-            | Fail -> {Success = success; Fail = fail + 1}
+            | Success -> {results with Success = results.Success + 1}
+            | Fail -> {results with Fail = results.Fail + 1}
+            | InputNotFound -> {results with InputNotFound = results.InputNotFound + 1}
         ) results
     
