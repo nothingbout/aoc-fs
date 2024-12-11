@@ -324,3 +324,42 @@ module ArrayList =
         let arr, len = (arr, len) |> makeRoom (len + count)
         Array.blit values 0 arr len count
         (arr, len + count)
+
+type Dict<'a, 'b> = System.Collections.Generic.Dictionary<'a, 'b>
+
+module Dict = 
+    let inline tryFind (source : Dict<_, _>) key = 
+        match source.TryGetValue(key) with
+        | true, value -> Some value
+        | false, _ -> None
+
+    let inline get source key orDefault = 
+        match tryFind source key with
+        | Some value -> value
+        | None -> orDefault
+
+    let inline add (source : Dict<_, _>) key value = 
+        source.Add(key, value)
+
+module Memoize =
+    let init () = Dict<_, _>()
+
+    let private _run mem key fn = 
+        match Dict.tryFind mem key with
+        | Some value -> value
+        | None ->
+            let value = fn ()
+            Dict.add mem key value
+            value
+
+    let run mem fn a = 
+        _run mem a (fun () -> fn a)
+
+    let run2 mem fn a b = 
+        _run mem (a, b) (fun () -> fn a b)
+
+    let run3 mem fn a b c = 
+        _run mem (a, b, c) (fun () -> fn a b c)
+
+    let run4 mem fn a b c d = 
+        _run mem (a, b, c, d) (fun () -> fn a b c d)
