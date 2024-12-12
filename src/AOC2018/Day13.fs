@@ -6,7 +6,7 @@ open Utils.Globals
 type Cart = { Pos : Vec2<int>; Dir : char; IntersectionIdx : int }
 
 let parseMap lines = 
-    let pieces = Array2.fromStringLines lines
+    let pieces = Array2.ofStringLines lines
     let mutable carts = []
     pieces |> Array2.iteri (fun pos c ->
         match c with

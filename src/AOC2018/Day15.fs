@@ -9,7 +9,7 @@ module Unit =
     let canAttack a b = a.Type <> b.Type
 
 let parseMap lines = 
-    let map = Array2.fromStringLines lines
+    let map = Array2.ofStringLines lines
     let mutable units = Map.empty
     map |> Array2.iteri (fun pos c ->
         match c with

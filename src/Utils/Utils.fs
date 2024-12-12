@@ -333,6 +333,9 @@ module Dict =
         | true, value -> Some value
         | false, _ -> None
 
+    let inline containsKey source key = 
+        tryFind source key |> Option.isSome
+
     let inline get source key orDefault = 
         match tryFind source key with
         | Some value -> value
@@ -340,6 +343,9 @@ module Dict =
 
     let inline add (source : Dict<_, _>) key value = 
         source.Add(key, value)
+
+    let inline count (source : Dict<_, _>) =
+        source.Count
 
 module Memoize =
     let init () = Dict<_, _>()

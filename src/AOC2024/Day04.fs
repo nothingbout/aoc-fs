@@ -3,7 +3,7 @@ open Utils
 open Utils.Globals
 
 let parseMap lines : Array2<char> = 
-    Array2.fromStringLines lines
+    Array2.ofStringLines lines
     
 let getChars pos dir i j map = 
     seq { i..j } |> Seq.map (fun i -> 

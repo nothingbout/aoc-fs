@@ -135,6 +135,13 @@ module Array2 =
                 let pos = Vec2.make x y
                 action pos source[pos]
 
+    let indices source = 
+        seq {
+            for y = 0 to height source - 1 do
+                for x = 0 to width source - 1 do
+                    yield Vec2.make x y
+        }
+
     let row y source = 
         let start = Vec2.make 0 y
         let finish = Vec2.make (width source - 1) y
@@ -146,7 +153,7 @@ module Array2 =
         for y = 0 to height - 1 do rows[y] <- source |> row y
         rows
 
-    let fromRows rows = 
+    let ofRows rows = 
         if Array.isEmpty rows then make (Vec2.makeZero ()) Array.empty
         else
         let width = Array.length rows[0]
@@ -154,8 +161,8 @@ module Array2 =
         if not (Array.forall (fun row -> Array.length row = width) rows) then failwith $"all rows should have the same length"
         make (Vec2.make width height) (Array.concat rows)
 
-    let fromStringLines lines = 
-        lines |> Seq.map String.toArray |> Array.ofSeq |> fromRows
+    let ofStringLines lines = 
+        lines |> Seq.map String.toArray |> Array.ofSeq |> ofRows
 
     let toStringLines source = 
         source |> rows |> Array.map String.ofArray
