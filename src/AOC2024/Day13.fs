@@ -20,38 +20,42 @@ let rec parseEntries entries lines =
         | _ -> List.rev (entry :: entries)
     | _ -> failwith "unexpected"
 
-let calcB entry a = 
-    (entry.Prize.X - entry.A.X * a) / entry.B.X
+let tryWin entry a =
+    let b = (entry.Prize.X - entry.A.X * a) / entry.B.X
+    if entry.A * a + entry.B * b = entry.Prize then 
+        Some (a * 3L + b)
+    else
+        None
 
-let tryWin aStart entry = 
-    seq {
-        for a = aStart to aStart + 100L do
-            let b = calcB entry a
-            if entry.A * a + entry.B * b = entry.Prize then 
-                yield a * 3L + b
-    } 
-    |> Seq.tryHead
+let slope v = 
+    v.Y * 10000L / v.X
 
-let tryWinBig entry = 
-    let aSteeper = entry.A.Y * 10000L / entry.A.X > entry.B.Y * 10000L / entry.B.X
+let tryFindWin entry = 
+    if slope entry.A = slope entry.B then failwith "not implemented"
 
+    let (<=?) = if slope entry.A > slope entry.B then (<=) else (>=)
     match (0L, entry.Prize.X / entry.A.X) ||> BinarySearch.lastLessOrEqual (fun a ->
-        let y = entry.A.Y * a + entry.B.Y * (calcB entry a)
-        if aSteeper then y <= entry.Prize.Y else y >= entry.Prize.Y
+        let b = (entry.Prize.X - entry.A.X * a) / entry.B.X
+        let pos = entry.A * a + entry.B * b
+        let delta = entry.Prize - pos
+        if delta.X = 0 then 
+            pos.Y <=? entry.Prize.Y 
+        else 
+            slope entry.B <=? slope delta
     ) with
     | None -> None
-    | Some a -> tryWin (max 0 (a - 50L)) entry
+    | Some a -> tryWin entry a
 
 let solveP1 (inputLines: string list) = 
     let entries = inputLines |> parseEntries []
-    entries |> List.choose (tryWin 0) |> List.sum |> Answer.int64
+    entries |> List.choose tryFindWin |> List.sum |> Answer.int64
     
 let solveP2 (inputLines: string list) = 
     let incr = 10_000_000_000_000L
     let entries = 
         inputLines |> parseEntries []
         |> List.map (fun entry -> {entry with Prize = entry.Prize + Vec2.make incr incr})
-    entries |> List.choose tryWinBig |> List.sum |> Answer.int64
+    entries |> List.choose tryFindWin |> List.sum |> Answer.int64
 
 let getPuzzles () = 
     [
