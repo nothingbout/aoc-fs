@@ -19,6 +19,7 @@ let getFirstPath toPos foundNodes =
     ) |> List.ofSeq |> List.rev
 
 let rec private _allFromPositions endPos found nodes = 
+    if Set.contains endPos nodes then nodes else
     let nodes = Set.add endPos nodes
     match Map.tryFind endPos found with
     | None -> nodes
