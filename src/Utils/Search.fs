@@ -40,32 +40,32 @@ let private makeFoundMap found =
 
 ///Guarantees first-in-first-out semantics for positions of equal distance.
 let bfs (expand : 'p -> int -> ExpandResult<'p, int>) (fromPositions : 'p seq) : Map<'p, PathNode<'p, int>> =
-        let mutable halt = false
-        let queue = System.Collections.Generic.Queue<_>()
-        let found = System.Collections.Generic.Dictionary<_, _>()
-        for pos in fromPositions do
-            queue.Enqueue(pos)
-            found.Add(pos, { FromPos = []; Distance = 0; IsExpanded = false })
-        while not halt && queue.Count > 0 do
-            let pos = queue.Dequeue()
-            let node = found[pos]
-            if node.IsExpanded then failwith "unexpected node.IsExpanded = true"
-            found[pos] <- { node with IsExpanded = true }
-            match expand pos node.Distance with
-            | Neighbors ns -> 
-                for npos, ndist in ns do
-                if ndist <> node.Distance + 1 then failwith "bfs expand should always return +1 distance"
+    let mutable halt = false
+    let queue = System.Collections.Generic.Queue<_>()
+    let found = System.Collections.Generic.Dictionary<_, _>()
+    for pos in fromPositions do
+        queue.Enqueue(pos)
+        found.Add(pos, { FromPos = []; Distance = 0; IsExpanded = false })
+    while not halt && queue.Count > 0 do
+        let pos = queue.Dequeue()
+        let node = found[pos]
+        if node.IsExpanded then failwith "unexpected node.IsExpanded = true"
+        found[pos] <- { node with IsExpanded = true }
+        match expand pos node.Distance with
+        | Neighbors ns -> 
+            for npos, ndist in ns do
+            if ndist <> node.Distance + 1 then failwith "bfs expand should always return +1 distance"
 
-                match found.TryGetValue(npos) with
-                    | false, _ ->
-                        queue.Enqueue(npos)
-                        found.Add(npos, { FromPos = [pos]; Distance = ndist; IsExpanded = false })
-                    | true, otherNode -> 
-                        if ndist = otherNode.Distance then
-                            found[npos] <- {otherNode with FromPos = pos :: otherNode.FromPos }
-            | StopSearch ->
-                halt <- true
-        makeFoundMap found
+            match found.TryGetValue(npos) with
+                | false, _ ->
+                    queue.Enqueue(npos)
+                    found.Add(npos, { FromPos = [pos]; Distance = ndist; IsExpanded = false })
+                | true, otherNode -> 
+                    if ndist = otherNode.Distance then
+                        found[npos] <- {otherNode with FromPos = pos :: otherNode.FromPos }
+        | StopSearch ->
+            halt <- true
+    makeFoundMap found
 
 ///Does not guarantee first-in-first-out semantics for positions of equal distance.
 let dijkstra (expand : 'p -> 'd -> ExpandResult<'p, 'd>) (fromPositions : ('p * 'd) seq) : Map<'p, PathNode<'p, 'd>> =

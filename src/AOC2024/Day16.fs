@@ -5,15 +5,15 @@ open Utils.Globals
 let dijkstra map startPos = 
     [((startPos, '>'), 0)] |> Search.dijkstra (fun (pos, dir) dist ->
         seq {
-            if not (map |> Set.contains (pos + Dir.toVec dir)) then 
-                yield (pos + Dir.toVec dir, dir), dist + 1
-            yield (pos, Dir.rotateCCW dir), dist + 1000
-            yield (pos, Dir.rotateCW dir), dist + 1000
+            if not (map |> Set.contains (pos + GridDir.toVec dir)) then 
+                yield (pos + GridDir.toVec dir, dir), dist + 1
+            yield (pos, GridDir.turnLeft dir), dist + 1000
+            yield (pos, GridDir.turnRight dir), dist + 1000
         } |> Search.Neighbors
     )
 
 let minDistance endPos found = 
-    Dir.all |> Seq.map (fun dir -> 
+    GridDir.all |> Seq.map (fun dir -> 
         match Map.tryFind (endPos, dir) found with
         | Some node -> Search.PathNode.distance node
         | None -> 1000000000
@@ -33,7 +33,7 @@ let solveP2 (inputLines: string list) =
     let found = dijkstra map startPos
     let minDist = minDistance endPos found
 
-    (Set.empty, Dir.all)
+    (Set.empty, GridDir.all)
     ||> Seq.fold (fun seats dir ->
         match Map.tryFind (endPos, dir) found with 
         | Some node when node.Distance = minDist ->

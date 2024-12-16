@@ -1,6 +1,29 @@
 namespace Utils
 open Globals
 
+module GridDir = 
+    let all = ['>'; '^'; '<'; 'v';]
+
+    let toVec dir = 
+        match dir with
+        | '>' -> Vec2.make 1 0 | '^' -> Vec2.make 0 -1 | '<' -> Vec2.make -1 0 | 'v' -> Vec2.make 0 1
+        | _ -> failwith $"unexpected dir {dir}"
+
+    let opposite dir = 
+        match dir with 
+        | '>' -> '<' | '^' -> 'v' | '<' -> '>' | 'v' -> '^'
+        | _ -> failwith $"unexpected dir {dir}"
+
+    let turnLeft dir = 
+        match dir with 
+        | '>' -> '^' | '^' -> '<' | '<' -> 'v' | 'v' -> '>'
+        | _ -> failwith $"unexpected dir {dir}"
+
+    let turnRight dir = 
+        match dir with 
+        | '>' -> 'v' | 'v' -> '<' | '<' -> '^' | '^' -> '>'
+        | _ -> failwith $"unexpected dir {dir}"
+
 module GridMap = 
     let parseMap markers lines = 
         seq { 
