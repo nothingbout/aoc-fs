@@ -166,3 +166,21 @@ module Array2 =
 
     let toStringLines source = 
         source |> rows |> Array.map String.ofArray
+
+module Dir = 
+    let all = ['>'; '^'; '<'; 'v';]
+
+    let toVec dir = 
+        match dir with
+        | '>' -> Vec2.make 1 0 | '^' -> Vec2.make 0 -1 | '<' -> Vec2.make -1 0 | 'v' -> Vec2.make 0 1
+        | _ -> failwith $"unexpected dir {dir}"
+
+    let rotateCCW dir = 
+        match dir with 
+        | '>' -> '^' | '^' -> '<' | '<' -> 'v' | 'v' -> '>'
+        | _ -> failwith $"unexpected dir {dir}"
+
+    let rotateCW dir = 
+        match dir with 
+        | '>' -> 'v' | 'v' -> '<' | '<' -> '^' | '^' -> '>'
+        | _ -> failwith $"unexpected dir {dir}"

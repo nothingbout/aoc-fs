@@ -2,6 +2,30 @@ namespace Utils
 open Globals
 
 module GridMap = 
+    let parseMap markers lines = 
+        seq { 
+            for y, line in lines |> List.indexed do
+                for x, c in line |> Seq.indexed do
+                    if Seq.contains c markers then
+                        yield (c, Vec2.make x y)
+        } |> Map.ofSeq
+
+    let parseMapSet marker lines = 
+        seq { 
+            for y, line in lines |> List.indexed do
+                for x, c in line |> Seq.indexed do
+                    if c = marker then
+                        yield (Vec2.make x y)
+        } |> Set.ofSeq
+
+    let parseMapToken token lines = 
+        seq { 
+            for y, line in lines |> List.indexed do
+                for x, c in line |> Seq.indexed do
+                    if c = token then
+                        yield Vec2.make x y
+        } |> Seq.head
+
     let printLines lines = 
         lines |> List.iter (printfn "%s")
 

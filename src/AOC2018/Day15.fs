@@ -75,7 +75,7 @@ let tryFindBestPath map units targetPositions fromPos =
     else
     reachable 
     |> Seq.minBy (fun pos -> ((foundNodes |> Map.find pos).Distance, pos.Y, pos.X))
-    |> fun pos -> foundNodes |> Search.getPath pos |> Some
+    |> fun pos -> foundNodes |> Search.getFirstPath pos |> Some
 
 let getUnitTargetPositions unit units = 
     units |> Seq.collect (fun (KeyValue (otherPos, otherUnit)) ->
