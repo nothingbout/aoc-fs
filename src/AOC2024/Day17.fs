@@ -12,8 +12,6 @@ type Op =
     | Bdv = 6
     | Cdv = 7
 
-type Reg = A | B| C
-
 type State = { Registers : int64 * int64 * int64; Program : int array; Ptr : int; Output : int list; Halted : bool }
 
 let defaultState = { Registers = (0, 0, 0); Program = [||]; Ptr = 0; Output = []; Halted = false }
@@ -27,7 +25,6 @@ let parseProgram lines =
         let program = pl |> String.trimPrefix "Program: " |> String.splitByString "," |> List.map int |> Array.ofList
         { defaultState with Registers = (parseRegister al, parseRegister bl, parseRegister cl); Program = program }
     | _ -> failwith "unexpected"
-
 
 let combo operand state = 
     let a, b, c = state.Registers
@@ -88,29 +85,18 @@ let stepUntilHalted state =
         state <- step state
     state
 
-let rec makeA inputs a = 
-    match inputs with
-    | i :: inputs -> makeA inputs (a * 8L + int64 i)
-    | [] -> a
-
-let rec search program outputs inputs = 
-    seq {
-        for next = 0 to 7 do
-            let inputs = next :: inputs
-            let a = makeA inputs 0
+let rec search program outputs n a = 
+    // (a, outputs) |> inspect |> ignore
+    match outputs with 
+    | [] -> Some a
+    | nextOut :: outputs ->
+        seq {0L..7L} |> Seq.tryPick (fun nextIn ->
+            let a = a * 8L + nextIn
             let state = program |> seta a |> stepUntilHalted
-
-            let locked = state.Output |> List.skip (min (List.length state.Output) 3)
-
-            if state.Output = outputs then
-                yield a
-            else if List.length state.Output <= List.length outputs && 
-                outputs |> List.rev |> List.take (List.length locked) |> List.rev = locked &&
-                List.length inputs - List.length state.Output <= 1 then
-                match search program outputs inputs with
-                | Some a -> yield a
-                | None -> ()
-    } |> Seq.tryHead
+            match state.Output |> List.tryItem n with
+            | Some o when o = nextOut -> search program outputs (n + 1) a
+            | _ -> None
+        )
     
 let solveP1 (inputLines: string list) = 
     let program = inputLines |> parseProgram
@@ -119,7 +105,7 @@ let solveP1 (inputLines: string list) =
     
 let solveP2 (inputLines: string list) = 
     let program = inputLines |> parseProgram
-    let a = search program (List.ofArray program.Program |> List.rev) [] |> Option.get
+    let a = search program (List.ofArray program.Program |> List.rev) 0 0 |> Option.get
     Answer.int64 a
 
 let getPuzzles () = 
