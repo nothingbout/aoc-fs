@@ -2,3 +2,4 @@
 /bin/
 /obj/
 /data/aoc*/**/input.txt
+/.vscode/
