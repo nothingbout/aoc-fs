@@ -23,21 +23,16 @@ let bfs bounds map n startPos endPos =
         )
         |> Search.Neighbors
     )
-    if Map.containsKey endPos found then Some found else None
-
-let getDistance endPos found = 
-    Map.find endPos found |> fun node -> Search.PathNode.distance node
-
-let getLowestIdxOnPath map endPos found = 
-    let path = Search.getFirstPath endPos found
-    path |> List.choose (fun pos -> Map.tryFind pos map) |> List.min
+    match Map.tryFind endPos found with
+    | Some node -> Search.PathNode.distance node |> Some
+    | None -> None
 
 let solveP1 n dims (inputLines: string list) = 
     let bounds = IntRect.withSize (Vec2.make 0 0) dims
     let map = inputLines |> parseMap
     let startPos = Vec2.make 0 0
     let endPos = dims - Vec2.make 1 1
-    bfs bounds map n startPos endPos |> Option.get |> getDistance endPos |> Answer.int
+    bfs bounds map n startPos endPos |> Option.get |> Answer.int
     
 let solveP2 dims (inputLines: string list) = 
     let bounds = IntRect.withSize (Vec2.make 0 0) dims
@@ -45,14 +40,12 @@ let solveP2 dims (inputLines: string list) =
     let startPos = Vec2.make 0 0
     let endPos = dims - Vec2.make 1 1
 
-    let mutable idx = 0
-    let mutable impassable = false
-    while not impassable do
-        match bfs bounds map (idx + 1) startPos endPos with
-        | Some found -> idx <- getLowestIdxOnPath map endPos found
-        | None -> impassable <- true
+    let lastPassableIdx = 
+        (0, List.length inputLines - 1) ||> BinarySearch.lastLessOrEqual (fun idx ->
+            if bfs bounds map (idx + 1) startPos endPos |> Option.isSome then true else false
+        ) |> Option.get
 
-    inputLines |> List.item idx |> parsePosition |> fun pos -> $"{pos.X},{pos.Y}" |> Answer.string
+    inputLines |> List.item (lastPassableIdx + 1) |> parsePosition |> fun pos -> $"{pos.X},{pos.Y}" |> Answer.string
 
 let getPuzzles () = 
     [
