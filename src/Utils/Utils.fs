@@ -144,9 +144,11 @@ module File =
             | :? System.IO.FileNotFoundException -> printfn $"File not found: {path}"; None
 
 module Math = 
-    let rec gcd a b = 
-        if b = 0 then abs a 
-        else gcd b (a % b)
+    let inline gcd a b = 
+        let rec loop a b =
+            if b = makeZero () then abs a 
+            else loop b (a % b)
+        loop a b
 
 [<Struct>]
 type Range<'T> = {Start : 'T; Finish : 'T}
