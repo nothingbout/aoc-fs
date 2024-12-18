@@ -1,6 +1,5 @@
 module AOC20XX.DayXX
 open Utils
-open Utils.Globals
 
 [<Struct>]
 type Entry = { Str : string }

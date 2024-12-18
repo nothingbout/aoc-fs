@@ -1,5 +1,6 @@
 namespace Utils
 
+[<AutoOpen>]
 module Globals =
     let inline makeZero () = LanguagePrimitives.GenericZero
     let inline makeOne () = LanguagePrimitives.GenericOne

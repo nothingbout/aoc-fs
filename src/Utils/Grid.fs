@@ -1,5 +1,4 @@
 namespace Utils
-open Globals
 
 module GridDir = 
     let all = ['>'; '^'; '<'; 'v';]

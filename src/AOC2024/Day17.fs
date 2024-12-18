@@ -1,6 +1,5 @@
 module AOC2024.Day17
 open Utils
-open Utils.Globals
 
 type Op =
     | Adv = 0

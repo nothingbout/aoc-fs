@@ -1,6 +1,5 @@
 module Readme
 open Utils
-open Globals
 
 type Time = { Hours : int; Minutes : int; Seconds : int }
     with

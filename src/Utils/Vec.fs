@@ -1,5 +1,4 @@
 namespace Utils
-open Globals
 
 [<Struct>]
 type Vec<'T> = { Arr : 'T array }

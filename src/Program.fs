@@ -1,5 +1,4 @@
 ﻿open Utils
-open Utils.Globals
 
 // https://stackoverflow.com/questions/21909506/can-i-call-a-function-by-name-in-f
 

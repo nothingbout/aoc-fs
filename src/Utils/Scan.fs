@@ -1,5 +1,4 @@
 namespace Utils
-open Globals
 
 type ScanResult<'T> =
   | ScanSuccess of 'T

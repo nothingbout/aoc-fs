@@ -1,5 +1,4 @@
 namespace Utils
-open Globals
 
 module Char = 
     let isDigit c = 

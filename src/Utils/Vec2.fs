@@ -1,5 +1,4 @@
 namespace Utils
-open Globals
 
 [<Struct>]
 type Vec2<'T> = {X : 'T; Y : 'T}
