@@ -9,6 +9,7 @@ module Char =
 
 [<Struct>][<CustomEquality>][<NoComparison>]
 type Substr = { Str : string; Range : int Range }
+
     with
         member inline a.CharAt i = a.Str[a.Range.Start + i] 
 
@@ -16,9 +17,8 @@ type Substr = { Str : string; Range : int Range }
         override a.GetHashCode() = a.ToString().GetHashCode()
         interface System.IEquatable<Substr> with
             member a.Equals b =
-                let a = a
-                let n = IntRange.length a.Range
-                n = IntRange.length b.Range && seq { 0..n - 1 } |> Seq.forall (fun i -> a.CharAt i = b.CharAt i)
+                IntRange.length a.Range = IntRange.length b.Range &&
+                System.String.Compare(a.Str, a.Range.Start, b.Str, b.Range.Start, IntRange.length a.Range) = 0
         override a.Equals obj =
             match obj with
             | :? Substr as b -> (a :> System.IEquatable<_>).Equals b
@@ -37,8 +37,9 @@ module Substr =
     let inline subFrom from r = make r.Str (Range.subFrom from r.Range)
     let inline subTo to' r = make r.Str (Range.subTo to' r.Range)
 
-    let equal a b =
-        length a = length b && seq { 0..length a - 1 } |> Seq.forall (fun i -> charAt i a = charAt i b)
+    let equal (a : Substr) (b : Substr) =
+        IntRange.length a.Range = IntRange.length b.Range &&
+        System.String.Compare(a.Str, a.Range.Start, b.Str, b.Range.Start, IntRange.length a.Range) = 0
 
     let startsWith prefix substr =
         let prefix = ofStr prefix
