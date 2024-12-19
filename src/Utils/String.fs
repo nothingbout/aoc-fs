@@ -16,12 +16,10 @@ type Substr = { Str : string; Range : int Range }
         override a.GetHashCode() = a.ToString().GetHashCode()
         interface System.IEquatable<Substr> with
             member a.Equals b =
-                printn "Equals b called"
                 let a = a
                 let n = IntRange.length a.Range
                 n = IntRange.length b.Range && seq { 0..n - 1 } |> Seq.forall (fun i -> a.CharAt i = b.CharAt i)
         override a.Equals obj =
-            printn "Equals obj called"
             match obj with
             | :? Substr as b -> (a :> System.IEquatable<_>).Equals b
             | _ -> false

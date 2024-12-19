@@ -217,6 +217,7 @@ module BinarySearch =
         else if start <> finish && isLEQ start then Some start
         else None
 
+[<RequireQualifiedAccess>]
 module List = 
     let foldHead folder source = 
         List.fold folder (List.head source) (List.tail source)
@@ -254,6 +255,7 @@ module List =
     let splitAtFirst predicate source =
         source |> trySplitAtFirst predicate |> Option.get
 
+[<RequireQualifiedAccess>]
 module Seq = 
     let groupByAndMap keyProjection valueProjection source =
         source |> Seq.groupBy keyProjection |> Seq.map (fun (key, values) -> key, values |> Seq.map valueProjection)
@@ -265,6 +267,7 @@ module Seq =
         source |> Seq.groupBy keyProjection |> Seq.map (
             fun (key, values) -> key, values |> Seq.map valueProjection |> Seq.fold folder state)
 
+[<RequireQualifiedAccess>]
 module Array = 
     let inline swap i j (source : 'a array) = 
         let tmp = source[i]
@@ -302,6 +305,7 @@ module Array =
         | Some idx -> if source[idx] = value then source else source |> Array.insertAt (idx + 1) value
         | None -> source |> Array.insertAt 0 value
 
+[<RequireQualifiedAccess>]
 module Map =
     let inline get key orDefault = 
         Map.tryFind key >> Option.defaultValue orDefault
@@ -309,6 +313,7 @@ module Map =
     let addSeq seq map =
         (map, seq) ||> Seq.fold (fun map (k, v) -> map |> Map.add k v)
 
+[<RequireQualifiedAccess>]
 module ArrayList = 
     let inline makeRoom capacity (arr, len) =
         if Array.length arr >= capacity then (arr, len)
@@ -330,6 +335,7 @@ module ArrayList =
 
 type Dict<'a, 'b> = System.Collections.Generic.Dictionary<'a, 'b>
 
+[<RequireQualifiedAccess>]
 module Dict = 
     let inline tryFind (source : Dict<_, _>) key = 
         match source.TryGetValue(key) with
