@@ -8,7 +8,7 @@ let bfs map (startPos : Vec2<int>) =
         |> Seq.map (fun dir -> (pos + dir, dist + 1))
         |> Seq.filter (fun (pos, _) -> not (map |> Set.contains pos))
         |> Search.Neighbors
-    )
+    ) |> Dict.ofMap
 
 let distanceToNode = Search.PathNode.distance
 
@@ -19,8 +19,8 @@ let makeCheatJumps maxCheatLength =
                 yield Vec2.make x y]
 
 let findCheats cheatJumps minSavings noCheatDist bfsFromStart bfsFromEnd = 
-    Seq.allPairs (bfsFromStart |> Map.toSeq) cheatJumps |> Seq.choose (fun ((pos, node), jump) ->
-        match Map.tryFind (pos + jump) bfsFromEnd with
+    Seq.allPairs (bfsFromStart |> Dict.toSeq) cheatJumps |> Seq.choose (fun ((pos, node), jump) ->
+        match Dict.tryFind bfsFromEnd (pos + jump) with
         | Some other -> 
             let savings = noCheatDist - (Vec2.abssum jump + distanceToNode node + distanceToNode other)
             if savings >= minSavings then Some savings
@@ -36,9 +36,7 @@ let solve maxCheatLength minSavings (inputLines: string list) =
     let bfsFromStart = bfs map startPos
     let bfsFromEnd = bfs map endPos
 
-    let noCheatDist = 
-        Map.find endPos bfsFromStart 
-        |> fun node -> distanceToNode node
+    let noCheatDist = Dict.find bfsFromStart endPos |> distanceToNode
 
     let cheats = findCheats maxCheatLength minSavings noCheatDist bfsFromStart bfsFromEnd
     // cheats |> Seq.countBy id |> Seq.sortBy fst |> inspect |> ignore

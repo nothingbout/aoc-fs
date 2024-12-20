@@ -337,10 +337,25 @@ type Dict<'a, 'b> = System.Collections.Generic.Dictionary<'a, 'b>
 
 [<RequireQualifiedAccess>]
 module Dict = 
+    let inline ofSeq seq = 
+        seq |> Seq.map (fun (a, b) -> System.Collections.Generic.KeyValuePair(a, b)) |> Dict<_, _>
+
+    let inline toSeq dict = 
+        dict |> Seq.map (|KeyValue|)
+
+    let inline ofMap map = 
+        map |> Map.toSeq |> ofSeq
+
+    let inline toMap dict = 
+        dict |> Seq.map (|KeyValue|) |> Map.ofSeq
+
     let inline tryFind (source : Dict<_, _>) key = 
         match source.TryGetValue(key) with
         | true, value -> Some value
         | false, _ -> None
+
+    let inline find source key =
+        tryFind source key |> Option.get
 
     let inline containsKey source key = 
         tryFind source key |> Option.isSome

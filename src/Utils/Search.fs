@@ -34,7 +34,7 @@ type ExpandResult<'p, 'd> =
 | Neighbors of ('p * 'd) seq
 
 let private makeFoundMap found = 
-    found |> Seq.map (|KeyValue|) |> Map.ofSeq
+    found |> Dict.toMap
     |> Map.map (fun _ node -> {node with FromPos = List.rev node.FromPos})
 
 ///Guarantees first-in-first-out semantics for positions of equal distance.
