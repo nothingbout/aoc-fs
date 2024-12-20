@@ -25,6 +25,7 @@ module Vec2 =
     let inline sign a = make (sign a.X) (sign a.Y)
     let inline abs a = make (abs a.X) (abs a.Y)
     let inline sum a = a.X + a.Y
+    let inline abssum a = a |> abs |> sum
     let inline product a = a.X * a.Y
     let inline dot a b = a.X * b.X + a.Y * b.Y
 
