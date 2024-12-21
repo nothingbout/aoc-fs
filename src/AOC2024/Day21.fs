@@ -32,20 +32,20 @@ let pathsToPressChar (keypad : Map<char, Vec2<int>>) startChar nextChar =
     else if Map.find 'X' keypad = c2 then [path1]
     else [path1; path2]
 
-let rec findPathLength mem keypad depth startChar nextChar = 
-    let findCharCost = Memoize.run3 mem (findPathLength mem arrowKeypad)
-    if depth = 0 then 
+let rec rootPathLengthBetweenChars mem keypad nrobots startChar nextChar = 
+    let recurse = Memoize.run3 mem (rootPathLengthBetweenChars mem arrowKeypad)
+    if nrobots = 0 then 
         Vec2.abssum (Map.find nextChar keypad - Map.find startChar keypad) + 1 |> int64 
     else
         let paths = pathsToPressChar keypad startChar nextChar
         paths |> List.map (fun path ->
-            'A' :: path |> List.pairwise |> List.sumBy (fun (c1, c2) -> findCharCost (depth - 1) c1 c2)
+            'A' :: path |> List.pairwise |> List.sumBy (fun (c1, c2) -> recurse (nrobots - 1) c1 c2)
         ) |> List.min
 
-let findCodePathLength nrobots code = 
+let findCodeRootPathLength nrobots code = 
     let mem = Memoize.init ()
     'A' :: code |> List.pairwise |> List.map (fun (startChar, nextChar) ->
-        findPathLength mem numericKeypad nrobots startChar nextChar
+        rootPathLengthBetweenChars mem numericKeypad nrobots startChar nextChar
     ) |> List.sum
 
 let getComplexity code pathLength = 
@@ -56,13 +56,13 @@ let solveP1 (inputLines: string list) =
     let codes = inputLines |> List.map parseCode
     codes |> Seq.map (fun code -> 
         // getComplexity code (findCombinedPath 2 code |> List.length |> int64)
-        getComplexity code (findCodePathLength 2 code)
+        getComplexity code (findCodeRootPathLength 2 code)
     ) |> Seq.sum |> Answer.int64
     
 let solveP2 (inputLines: string list) = 
     let codes = inputLines |> List.map parseCode
     codes |> Seq.map (fun code -> 
-        getComplexity code (findCodePathLength 25 code)
+        getComplexity code (findCodeRootPathLength 25 code)
     ) |> Seq.sum |> Answer.int64
 
 let getPuzzles () = 
