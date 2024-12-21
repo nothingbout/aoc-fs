@@ -24,12 +24,19 @@ module GridDir =
         | _ -> failwith $"unexpected dir {dir}"
 
 module GridMap = 
+    let ofLines lines = 
+        seq { 
+            for y, line in lines |> List.indexed do
+                for x, c in line |> Seq.indexed do
+                    yield (Vec2.make x y, c)
+        } |> Map.ofSeq
+
     let parseMap markers lines = 
         seq { 
             for y, line in lines |> List.indexed do
                 for x, c in line |> Seq.indexed do
                     if Seq.contains c markers then
-                        yield (c, Vec2.make x y)
+                        yield (Vec2.make x y, c)
         } |> Map.ofSeq
 
     let parseMapSet marker lines = 

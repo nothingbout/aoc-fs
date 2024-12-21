@@ -123,7 +123,8 @@ module Globals =
             | InlineString line -> line
             | IndentedLines lines -> lines
 
-    let inspectWithLabel label x = printfn $"{label}: {JSON.serializeToString JSON.FormatOptions.defaults x}"; x
+    let toInspectString x = JSON.serializeToString JSON.FormatOptions.defaults x
+    let inspectWithLabel label x = printfn $"{label}: {toInspectString x}"; x
     let inspect x = inspectWithLabel "INSPECT" x
 
     let inspectSeq seq = 
