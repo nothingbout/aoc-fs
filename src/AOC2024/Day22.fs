@@ -28,25 +28,25 @@ let getDeltas secrets =
     secrets |> List.pairwise |> List.map (fun (a, b) -> b - a)
 
 let arrKey d1 d2 d3 d4 = 
-    let k = (d1 + 20)
-    let k = k * 40 + (d2 + 20)
-    let k = k * 40 + (d3 + 20)
-    let k = k * 40 + (d4 + 20)
+    let k = (d1 + 10)
+    let k = k * 20 + (d2 + 10)
+    let k = k * 20 + (d3 + 10)
+    let k = k * 20 + (d4 + 10)
     k
 
 let getProfitsByDeltas prices deltas = 
-    let rec loop prices deltas (profits : int array) (keys : int list) = 
+    let rec loop prices deltas (profits : int16 array) (keys : int list) = 
         match prices, deltas with
         | price :: prices, d1 :: d2 :: d3 :: d4 :: _ ->
             let deltas = List.skip 1 deltas
             let k = arrKey d1 d2 d3 d4
-            if profits[k] = -1000 then 
-                profits[k] <- price 
+            if profits[k] = -100s then 
+                profits[k] <- price |> int16
                 loop prices deltas profits (k :: keys)
             else
                 loop prices deltas profits keys
         | _ -> keys, profits
-    loop (List.skip 4 prices) deltas (Array.init (40 * 40 * 40 * 40) (fun _ -> -1000)) List.empty
+    loop (List.skip 4 prices) deltas (Array.replicate (20 * 20 * 20 * 20) -100s) List.empty
 
 let solveP1 (inputLines: string list) = 
     inputLines |> List.map parseNumber
@@ -67,10 +67,10 @@ let solveP2 (inputLines: string list) =
     keys |> Array.Parallel.map (fun key -> 
         profitsForAll |> Array.sumBy (fun (_, prices) -> 
             match prices[key] with
-            | price when price > -10 -> price
-            | _ -> 0
+            | price when price > -10s -> price
+            | _ -> 0s
         )
-    ) |> Seq.max |> Answer.int
+    ) |> Seq.max |> int |> Answer.int
 
 let getPuzzles () = 
     [
