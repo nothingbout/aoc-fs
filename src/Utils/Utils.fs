@@ -314,6 +314,13 @@ module Map =
     let addSeq seq map =
         (map, seq) ||> Seq.fold (fun map (k, v) -> map |> Map.add k v)
 
+    let merge merger map1 map2 = 
+        (map1, map2) ||> Map.fold (fun acc key value ->
+            match Map.tryFind key acc with
+            | Some prevValue -> Map.add key (merger prevValue value) acc
+            | None -> Map.add key value acc
+        )
+
 [<RequireQualifiedAccess>]
 module ArrayList = 
     let inline makeRoom capacity (arr, len) =
@@ -349,6 +356,9 @@ module Dict =
 
     let inline toMap dict = 
         dict |> Seq.map (|KeyValue|) |> Map.ofSeq
+
+    let inline keys (dict : Dict<_, _>) = 
+        dict.Keys
 
     let inline tryFind (source : Dict<_, _>) key = 
         match source.TryGetValue(key) with
