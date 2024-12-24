@@ -345,6 +345,8 @@ type Dict<'a, 'b> = System.Collections.Generic.Dictionary<'a, 'b>
 
 [<RequireQualifiedAccess>]
 module Dict = 
+    let inline makeEmpty () = Dict<_, _>()
+
     let inline ofSeq seq = 
         seq |> Seq.map (fun (a, b) -> System.Collections.Generic.KeyValuePair(a, b)) |> Dict<_, _>
 
